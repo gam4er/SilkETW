@@ -1,1 +1,9 @@
 .DS_Store
+/SilkETW/packages
+/SilkService/packages
+/SilkService/obj
+/SilkService/bin
+/SilkETW/obj
+/SilkService/.vs
+/SilkETW/bin
+/SilkETW/.vs
