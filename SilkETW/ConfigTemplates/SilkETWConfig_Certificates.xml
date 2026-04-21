@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SilkETWConfig>
+
+  <!-- Certificate Services ETW Collector -->
+  <OutputPath>C:\Logs\cert_etw_events.ndjson</OutputPath>
+
+  <!-- Certificate Services Client CredentialRoaming Trace -->
+  <ETWCollector>
+    <Guid>7b2e4d91-a38c-4f65-b1d0-9e8f3c7a52b6</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>EF4109DC-68FC-45AF-B329-CA2825437209</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Certificate Services Client Trace -->
+  <ETWCollector>
+    <Guid>1c9a3f85-d7e2-4b46-a891-0f3d6c8b74e2</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>F01B7774-7ED7-401E-8088-B576793D7841</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-CertificateServicesClient -->
+  <ETWCollector>
+    <Guid>a4d82b17-e6f3-49c8-b5a0-2d1e7f9c36a8</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-CertificateServicesClient</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-CertificateServicesClient-AutoEnrollment -->
+  <ETWCollector>
+    <Guid>e3b59c42-8d1a-4f76-a0b5-6c2f8e3d91c7</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-CertificateServicesClient-AutoEnrollment</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-CertificateServicesClient-CertEnroll -->
+  <ETWCollector>
+    <Guid>5f8a1d63-b2c9-4e87-a1d4-3c0e9f7b82d5</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-CertificateServicesClient-CertEnroll</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-CertificateServicesClient-CredentialRoaming -->
+  <ETWCollector>
+    <Guid>d2c74e38-9b1f-4a85-b6d2-0e3f7c8a14b9</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-CertificateServicesClient-CredentialRoaming</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-CertificateServicesClient-Lifecycle-System -->
+  <ETWCollector>
+    <Guid>8e3b5a29-c1d7-4f62-b0a8-9d2e6f1c73b4</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-CertificateServicesClient-Lifecycle-System</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-CertificateServicesClient-Lifecycle-User -->
+  <ETWCollector>
+    <Guid>c9f12d84-a3e6-4b59-81c7-0d5e2f8b96a3</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-CertificateServicesClient-Lifecycle-User</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-CertificationAuthorityClient-CertCli -->
+  <ETWCollector>
+    <Guid>4a7e2c15-d8b3-4f91-a6c0-1b3d9e5f72c8</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-CertificationAuthorityClient-CertCli</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-CertPolEng -->
+  <ETWCollector>
+    <Guid>b1d83f47-e9c2-4a68-b5d1-7e0f3c2a85d6</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-CertPolEng</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+</SilkETWConfig>

@@ -1,227 +1,178 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Microsoft.Diagnostics.Tracing;
-using Microsoft.Diagnostics.Tracing.Session;
-using Microsoft.Diagnostics.Tracing.Parsers;
+using System.Threading;
 using System.Xml;
-using System.Collections;
-using System.Collections.Generic;
+using Microsoft.Diagnostics.Tracing;
+using Microsoft.Diagnostics.Tracing.Parsers;
+using Microsoft.Diagnostics.Tracing.Session;
 
 namespace SilkETW
 {
-    class ETWCollector
+    static class ETWCollector
     {
-        
-        public static void StartTrace(CollectorType CollectorType, ulong TraceKeywords, OutputType OutputType, String Path, FilterOption FilterOption, Object FilterValue, String YaraScan, YaraOptions YaraOptions, String ProviderName = "", UserTraceEventLevel UserTraceEventLevel = UserTraceEventLevel.Informational)
+        /// <summary>
+        /// Starts an ETW trace session for the given collector parameters.
+        /// Events are serialized to JSON and written to the shared <paramref name="writer"/>.
+        /// This method blocks until the trace is stopped (via Ctrl+C or error).
+        /// </summary>
+        public static void StartTrace(CollectorParameters collector, NdjsonFileWriter writer)
         {
-            // Is elevated?
+            // Elevation check
             if (TraceEventSession.IsElevated() != true)
             {
-                SilkUtility.ReturnStatusMessage("[!] The collector must be run as Administrator..", ConsoleColor.Red);
+                SilkUtility.WriteError($"Collector {collector.CollectorGUID}: must be run as Administrator");
                 return;
             }
 
-            // Print status
-            SilkUtility.ReturnStatusMessage("[>] Starting trace collector (Ctrl-c to stop)..", ConsoleColor.Yellow);
-            SilkUtility.ReturnStatusMessage("[?] Events captured: 0", ConsoleColor.Green); // We will update this dynamically
+            SilkUtility.WriteInfo($"Collector {collector.CollectorGUID}: starting trace");
 
-            // The kernel collector has naming requirements
-            if (CollectorType == CollectorType.Kernel)
+            // Session naming
+            string sessionName;
+            if (collector.CollectorType == CollectorType.Kernel)
             {
-                SilkUtility.EventParseSessionName = KernelTraceEventParser.KernelSessionName;
-            } else
+                sessionName = KernelTraceEventParser.KernelSessionName;
+            }
+            else
             {
-                // We add a GUID in case of concurrent SilkETW execution
-                String RandId = Guid.NewGuid().ToString();
-                SilkUtility.EventParseSessionName = ("SilkETWUserCollector_" + RandId);
+                sessionName = "SilkETWUserCollector_" + Guid.NewGuid().ToString("N");
             }
 
-            // Create trace session
-            using (var TraceSession = new TraceEventSession(SilkUtility.EventParseSessionName))
+            var traceSession = new TraceEventSession(sessionName);
+            traceSession.StopOnDispose = true;
+
+            using (var eventSource = new ETWTraceEventSource(sessionName, TraceEventSourceType.Session))
             {
-                // The collector cannot survive process termination (safeguard)
-                TraceSession.StopOnDispose = true;
+                    var eventParser = new DynamicTraceEventParser(eventSource);
 
-                // Create event source
-                using (var EventSource = new ETWTraceEventSource(SilkUtility.EventParseSessionName, TraceEventSourceType.Session))
-                {
-                    // Ctrl-c callback handler
-                    SilkUtility.SetupCtrlCHandler(() =>
+                    eventParser.All += delegate (TraceEvent data)
                     {
-                        if (OutputType == OutputType.eventlog)
+                        var eRecord = new EventRecordStruct
                         {
-                            SilkUtility.WriteEventLogEntry("{\"Collector\":\"Stop\",\"Error\":false}", EventLogEntryType.SuccessAudit, EventIds.StopOk, Path);
-                        }
-                        TerminateCollector();
-                    });
+                            ProviderGuid = data.ProviderGuid,
+                            ProviderName = data.ProviderName,
+                            EventName = data.EventName,
+                            Opcode = data.Opcode,
+                            OpcodeName = data.OpcodeName,
+                            TimeStamp = data.TimeStamp,
+                            ThreadID = data.ThreadID,
+                            ProcessID = data.ProcessID,
+                            ProcessName = data.ProcessName,
+                            PointerSize = data.PointerSize,
+                            EventDataLength = data.EventDataLength
+                        };
 
-                    // A DynamicTraceEventParser can understand how to read the embedded manifests that occur in the dataStream
-                    var EventParser = new DynamicTraceEventParser(EventSource);
-
-                    // Loop events as they arrive
-                    EventParser.All += delegate (TraceEvent data)
-                    {
-                        // It's a bit ugly but ... ¯\_(ツ)_/¯
-                        if (FilterOption != FilterOption.None)
+                        // Populate process name if undefined
+                        if (string.IsNullOrEmpty(eRecord.ProcessName))
                         {
-                            if (FilterOption == FilterOption.Opcode && (byte)data.Opcode != (byte)FilterValue)
-                            {
-                                SilkUtility.ProcessEventData = false;
-                            } else if (FilterOption == FilterOption.ProcessID && data.ProcessID != (UInt32)FilterValue)
-                            {
-                                SilkUtility.ProcessEventData = false;
-                            } else if (FilterOption == FilterOption.ProcessName && data.ProcessName != (String)FilterValue)
-                            {
-                                SilkUtility.ProcessEventData = false;
-                            } else if (FilterOption == FilterOption.EventName && data.EventName != (String)FilterValue)
-                            {
-                                SilkUtility.ProcessEventData = false;
-                            } else
-                            {
-                                SilkUtility.ProcessEventData = true;
-                            }
-                        } else
-                        {
-                            SilkUtility.ProcessEventData = true;
-                        }
-
-                        // Only process/serialize events if they match our filter
-                        if (SilkUtility.ProcessEventData)
-                        {
-                            // Display running event count
-                            SilkUtility.RunningEventCount += 1;
-                            SilkUtility.UpdateEventCount("[?] Events captured: " + SilkUtility.RunningEventCount);
-
-                            var eRecord = new EventRecordStruct
-                            {
-                                ProviderGuid = data.ProviderGuid,
-                                YaraMatch = new List<String>(),
-                                ProviderName = data.ProviderName,
-                                EventName = data.EventName,
-                                Opcode = data.Opcode,
-                                OpcodeName = data.OpcodeName,
-                                TimeStamp = data.TimeStamp,
-                                ThreadID = data.ThreadID,
-                                ProcessID = data.ProcessID,
-                                ProcessName = data.ProcessName,
-                                PointerSize = data.PointerSize,
-                                EventDataLength = data.EventDataLength
-                            };
-
-                            // Populate Proc name if undefined
-                            if (String.IsNullOrEmpty(eRecord.ProcessName))
-                            {
-                                try
-                                {
-                                    eRecord.ProcessName = Process.GetProcessById(eRecord.ProcessID).ProcessName;
-                                }
-                                catch
-                                {
-                                    eRecord.ProcessName = "N/A";
-                                }
-                            }
-                            var EventProperties = new Hashtable();
-
-                            // Try to parse event XML
                             try
                             {
-                                StringReader XmlStringContent = new StringReader(data.ToString());
-                                XmlTextReader EventElementReader = new XmlTextReader(XmlStringContent);
-                                while (EventElementReader.Read())
-                                {
-                                    for (int AttribIndex = 0; AttribIndex < EventElementReader.AttributeCount; AttribIndex++)
-                                    {
-                                        EventElementReader.MoveToAttribute(AttribIndex);
+                                eRecord.ProcessName = Process.GetProcessById(eRecord.ProcessID).ProcessName;
+                            }
+                            catch
+                            {
+                                eRecord.ProcessName = "N/A";
+                            }
+                        }
 
-                                        // Cap maxlen for eventdata elements to 10k
-                                        if (EventElementReader.Value.Length > 10000)
+                        // Parse event properties from XML representation
+                        var eventProperties = new Dictionary<string, string>();
+                        try
+                        {
+                            using (var stringReader = new StringReader(data.ToString()))
+                            {
+                                var settings = new XmlReaderSettings
+                                {
+                                    ConformanceLevel = ConformanceLevel.Fragment,
+                                    DtdProcessing = DtdProcessing.Prohibit
+                                };
+
+                                using (var xmlReader = XmlReader.Create(stringReader, settings))
+                                {
+                                    while (xmlReader.Read())
+                                    {
+                                        for (int i = 0; i < xmlReader.AttributeCount; i++)
                                         {
-                                            String DataValue = EventElementReader.Value.Substring(0, Math.Min(EventElementReader.Value.Length, 10000));
-                                            EventProperties.Add(EventElementReader.Name, DataValue);
-                                        } else
-                                        {
-                                            EventProperties.Add(EventElementReader.Name, EventElementReader.Value);
+                                            xmlReader.MoveToAttribute(i);
+                                            string attrName = xmlReader.Name;
+                                            string attrValue = xmlReader.Value;
+
+                                            // Cap max length for event data elements to 10k
+                                            if (attrValue.Length > 10000)
+                                            {
+                                                attrValue = attrValue.Substring(0, 10000);
+                                            }
+
+                                            // Avoid duplicate keys (can happen with some providers)
+                                            if (!eventProperties.ContainsKey(attrName))
+                                            {
+                                                eventProperties[attrName] = attrValue;
+                                            }
                                         }
                                     }
                                 }
                             }
-                            catch
-                            {
-                                // For debugging (?), never seen this fail
-                                EventProperties.Add("XmlEventParsing", "false");
-                            }
-                            eRecord.XmlEventData = EventProperties;
-
-                            // Serialize to JSON
-                            String JSONEventData = Newtonsoft.Json.JsonConvert.SerializeObject(eRecord);
-                            int ProcessResult = SilkUtility.ProcessJSONEventData(JSONEventData, OutputType, Path, YaraScan, YaraOptions);
-
-                            // Verify that we processed the result successfully
-                            if (ProcessResult != 0)
-                            {
-                                if (ProcessResult == 1)
-                                {
-                                    SilkUtility.ReturnStatusMessage("[!] The collector failed to write to file", ConsoleColor.Red);
-                                } else if (ProcessResult == 2)
-                                {
-                                    SilkUtility.ReturnStatusMessage("[!] The collector failed to POST the result", ConsoleColor.Red);
-                                } else {
-                                    SilkUtility.ReturnStatusMessage("[!] The collector failed write to the eventlog", ConsoleColor.Red);
-                                }
-
-                                // Write status to eventlog if dictated by the output type
-                                if (OutputType == OutputType.eventlog)
-                                {
-                                    SilkUtility.WriteEventLogEntry($"{{\"Collector\":\"Stop\",\"Error\":true,\"ErrorCode\":{ProcessResult}}}", EventLogEntryType.Error, EventIds.StopError, Path);
-                                }
-
-                                // Shut down the collector
-                                TerminateCollector();
-                            }
                         }
+                        catch (Exception ex)
+                        {
+                            eventProperties["XmlEventParsing"] = "false";
+                            eventProperties["XmlEventParsingError"] = ex.Message;
+                        }
+                        eRecord.XmlEventData = eventProperties;
+
+                        // Serialize to JSON and enqueue
+                        string jsonLine = Newtonsoft.Json.JsonConvert.SerializeObject(eRecord, Newtonsoft.Json.Formatting.None);
+                        if (!writer.Enqueue(jsonLine))
+                        {
+                            SilkUtility.WriteError($"Collector {collector.CollectorGUID}: failed to enqueue event (writer stopped)");
+                            TerminateCollector();
+                            return;
+                        }
+
+                        // Update global counter
+                        Interlocked.Increment(ref SilkUtility.RunningEventCount);
                     };
 
-                    // Specify the providers details
-                    if (CollectorType == CollectorType.Kernel)
+                    // Enable the provider
+                    if (collector.CollectorType == CollectorType.Kernel)
                     {
-                        TraceSession.EnableKernelProvider((KernelTraceEventParser.Keywords)TraceKeywords);
-                    } else
+                        traceSession.EnableKernelProvider((KernelTraceEventParser.Keywords)collector.KernelKeywords);
+                    }
+                    else
                     {
-                        // Note that the collector doesn't know if you specified a wrong provider name,
-                        // the only tell is that you won't get any events ;) 
-                        TraceSession.EnableProvider(ProviderName, (TraceEventLevel)UserTraceEventLevel, TraceKeywords);
+                        traceSession.EnableProvider(
+                            collector.ProviderName,
+                            (TraceEventLevel)collector.UserTraceEventLevel,
+                            collector.UserKeywords);
                     }
 
-                    // Write status to eventlog if dictated by the output type
-                    if (OutputType == OutputType.eventlog)
+                    // Register this instance for cleanup
+                    var instance = new CollectorInstance
                     {
-                        String ConvertKeywords;
-                        if (CollectorType == CollectorType.Kernel)
+                        CollectorGUID = collector.CollectorGUID,
+                        EventSource = eventSource,
+                        TraceSession = traceSession,
+                        EventParseSessionName = sessionName
+                    };
+                    lock (SilkUtility.CollectorTaskList)
+                    {
+                        SilkUtility.CollectorTaskList.Add(instance);
+                    }
+
+                        // Signal that the thread has started
+                        SilkUtility.SignalThreadStarted.Set();
+
+                        // Block: continuously process events
+                        eventSource.Process();
+
+                        void TerminateCollector()
                         {
-                            ConvertKeywords = Enum.GetName(typeof(KernelTraceEventParser.Keywords), TraceKeywords);
-                        } else
-                        {
-                            ConvertKeywords = "0x" + String.Format("{0:X}", TraceKeywords);
+                            eventSource.StopProcessing();
+                            try { traceSession?.Stop(); } catch { }
+                            try { traceSession?.Dispose(); } catch { }
                         }
-                        String Message = $"{{\"Collector\":\"Start\",\"Data\":{{\"Type\":\"{CollectorType}\",\"Provider\":\"{ProviderName}\",\"Keywords\":\"{ConvertKeywords}\",\"FilterOption\":\"{FilterOption}\",\"FilterValue\":\"{FilterValue}\",\"YaraPath\":\"{YaraScan}\",\"YaraOption\":\"{YaraOptions}\"}}}}";
-                        SilkUtility.WriteEventLogEntry(Message, EventLogEntryType.SuccessAudit, EventIds.Start, Path);
                     }
-
-                    // Continuously process all new events in the data source
-                    EventSource.Process();
-
-                    // Helper to clean up colloector
-                    void TerminateCollector()
-                    {
-                        EventSource.StopProcessing();
-                        TraceSession?.Stop();
-                        Console.CursorVisible = true;
-                        SilkUtility.ReturnStatusMessage("[+] Collector terminated", ConsoleColor.Green);
-                    }
-                }
-
-            }
         }
     }
 }

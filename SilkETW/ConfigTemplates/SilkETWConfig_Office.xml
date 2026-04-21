@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SilkETWConfig>
+
+  <!-- Microsoft Office ETW Collector -->
+  <OutputPath>C:\Logs\office_etw_events.ndjson</OutputPath>
+
+  <!-- Microsoft-Office-Events -->
+  <ETWCollector>
+    <Guid>a3e7c14d-92b1-4f58-b6d0-7c8a3e1f54d2</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Office-Events</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Office-Word -->
+  <ETWCollector>
+    <Guid>f19b8e63-d4a7-4c12-ae95-0b6d2f3c81e7</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Office-Word</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Office-Word2 -->
+  <ETWCollector>
+    <Guid>c82d4a91-6e3f-47b5-9d18-2a0e7bf5c463</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Office-Word2</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Office-Word3 -->
+  <ETWCollector>
+    <Guid>e5d17b36-8a4c-4f29-b0e1-3d9c6a2f78b5</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Office-Word3</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- OfficeAirSpace -->
+  <ETWCollector>
+    <Guid>d6f42c18-b5e9-4a73-81d4-0c2e9f3a67b0</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>F562BB8E-422D-4B5C-B20E-90D710F7D11C</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- OfficeLoggingLiblet -->
+  <ETWCollector>
+    <Guid>b8a93e57-1d4f-4c86-a2e0-5f7b9c3d12a4</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>F50D9315-E17E-43C1-8370-3EDF6CC057BE</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+</SilkETWConfig>

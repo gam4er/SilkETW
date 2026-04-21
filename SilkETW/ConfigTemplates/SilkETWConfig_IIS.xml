@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SilkETWConfig>
+
+  <!-- IIS Ultimate Collector — all major IIS ETW providers -->
+  <OutputPath>.\Logs\iis_etw_events.ndjson</OutputPath>
+
+  <!-- IIS: Active Server Pages (ASP) -->
+  <ETWCollector>
+    <Guid>04382b81-5530-48f6-8937-a1da45bf68a7</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>06B94D9A-B15E-456E-A4EF-37C984A2CB4B</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- IIS: WWW Global -->
+  <ETWCollector>
+    <Guid>1c06dcc9-0e70-48ac-af26-718b497ca166</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>D55D3BC9-CBA9-44DF-827E-132D3A4596C2</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- IIS: WWW Isapi Extension -->
+  <ETWCollector>
+    <Guid>b7fb3afb-c6ac-46f3-9d45-af4f1d42f029</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>A1C2040E-8840-4C31-BA11-9871031A19EA</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- IIS: WWW Server -->
+  <ETWCollector>
+    <Guid>eb2dcaa7-4e21-433a-bb74-9ecea81e4613</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>3A2A4E84-4C21-4981-AE10-3FDA0D9B0F83</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-IIS -->
+  <ETWCollector>
+    <Guid>2471d858-fff0-44f1-bb37-f86a5848d8fc</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-IIS</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-IIS-APPHOSTSVC -->
+  <ETWCollector>
+    <Guid>d56900f5-176d-4bc9-8d46-8d9ed98fed7c</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-IIS-APPHOSTSVC</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-IIS-Configuration -->
+  <ETWCollector>
+    <Guid>d39375d6-24a5-4b8a-8819-1414ce081151</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-IIS-Configuration</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-IIS-FTP -->
+  <ETWCollector>
+    <Guid>adf591c0-be96-431d-b137-e0966339b58d</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-IIS-FTP</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-IIS-IisMetabaseAudit -->
+  <ETWCollector>
+    <Guid>7c8a9568-4502-4a0e-8b63-0c8da2f5c19a</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-IIS-IisMetabaseAudit</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-IIS-IISReset -->
+  <ETWCollector>
+    <Guid>2ace47fb-9a96-41bb-a1e9-20d1d08165d0</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-IIS-IISReset</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-IIS-Logging -->
+  <ETWCollector>
+    <Guid>9ef92f11-61fa-4de8-a7de-ae0835b771d8</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-IIS-Logging</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-IIS-W3SVC -->
+  <ETWCollector>
+    <Guid>388dd5d1-5a69-46e6-95ff-91e328f7a1f4</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-IIS-W3SVC</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-IIS-W3SVC-PerfCounters -->
+  <ETWCollector>
+    <Guid>97b74404-25cb-4461-a387-d112bf8fd3a2</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-IIS-W3SVC-PerfCounters</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-IIS-W3SVC-WP -->
+  <ETWCollector>
+    <Guid>d342318d-7b9d-43f9-ade2-d42af145b2b8</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-IIS-W3SVC-WP</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- Microsoft-Windows-IIS-WMSVC -->
+  <ETWCollector>
+    <Guid>d7ec8408-bc22-4891-92e7-c682f7c3fda3</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-IIS-WMSVC</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+</SilkETWConfig>
