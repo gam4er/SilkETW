@@ -21,17 +21,19 @@
        100664832 = FileIO (33554432) + FileIOInit (67108864) + DiskFileIO (512) + DiskIOInit (1024)
        Keep this collector if you want to detect actual reads via \Device\HarddiskVolumeShadowCopy* paths.
   -->
+
   <ETWCollector>
     <Guid>c6f6f37a-2b9b-4d4a-b3d5-2f9a21d5b6d3</Guid>
     <CollectorType>Kernel</CollectorType>
     <KernelKeywords>100664832</KernelKeywords>
   </ETWCollector>
 
+
   <!-- User providers supplied by you -->
   <ETWCollector>
     <Guid>6d4df908-4fd8-48db-8ff3-0db02d9cb8ee</Guid>
     <CollectorType>User</CollectorType>
-    <ProviderName>bc46e9a5-8551-4cab-878e-795038e34552</ProviderName>
+    <ProviderName>67fe2216-727a-40cb-94b2-c02211edb34a</ProviderName>
     <UserTraceEventLevel>Verbose</UserTraceEventLevel>
     <UserKeywords>0xffffffffffffffff</UserKeywords>
   </ETWCollector>
@@ -47,7 +49,7 @@
   <ETWCollector>
     <Guid>e8450f0c-36f7-4fa8-b4bb-7335478716a2</Guid>
     <CollectorType>User</CollectorType>
-    <ProviderName>dc4dbe98-31b8-48e9-bd61-dcb113444ed9</ProviderName>
+    <ProviderName>9138500E-3648-4EDB-AA4C-859E9F7B7C38</ProviderName>
     <UserTraceEventLevel>Verbose</UserTraceEventLevel>
     <UserKeywords>0xffffffffffffffff</UserKeywords>
   </ETWCollector>
@@ -55,33 +57,10 @@
   <ETWCollector>
     <Guid>2f1c7d3f-9f88-4b54-bfd1-2a97036f77d4</Guid>
     <CollectorType>User</CollectorType>
-    <ProviderName>377c9208-835e-451f-a7b7-5ad59c1fa8b3</ProviderName>
+    <ProviderName>77D8F687-8130-4A14-B8A6-3B922E05B99C</ProviderName>
     <UserTraceEventLevel>Verbose</UserTraceEventLevel>
     <UserKeywords>0xffffffffffffffff</UserKeywords>
   </ETWCollector>
 
-  <ETWCollector>
-    <Guid>18487b34-a18b-4b39-a9af-fbecc3c0d7d8</Guid>
-    <CollectorType>User</CollectorType>
-    <ProviderName>0503a424-9268-4f7e-86bf-21c6536f3781</ProviderName>
-    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
-    <UserKeywords>0xffffffffffffffff</UserKeywords>
-  </ETWCollector>
-
-  <ETWCollector>
-    <Guid>9bf88241-f6fa-4d74-b5e9-891791ef4745</Guid>
-    <CollectorType>User</CollectorType>
-    <ProviderName>6d84585e-5f6d-4a56-aeda-62fc68d37833</ProviderName>
-    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
-    <UserKeywords>0xffffffffffffffff</UserKeywords>
-  </ETWCollector>
-
-  <ETWCollector>
-    <Guid>f0b49e71-2250-4572-8066-f9fe95217798</Guid>
-    <CollectorType>User</CollectorType>
-    <ProviderName>8ac259d5-ef5b-4eb7-95bc-24bcec769ee3</ProviderName>
-    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
-    <UserKeywords>0xffffffffffffffff</UserKeywords>
-  </ETWCollector>
 
 </SilkETWConfig>
