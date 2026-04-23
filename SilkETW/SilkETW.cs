@@ -57,7 +57,7 @@ namespace SilkETW
                     {
                         string providerDisplay = collector.CollectorType == CollectorType.Kernel
                             ? collector.KernelKeywords.ToString()
-                            : collector.ProviderName;
+                            : collector.ProviderName;   // covers User and SystemProvider
 
                         SilkUtility.WriteInfo($"  GUID:     {collector.CollectorGUID}");
                         SilkUtility.WriteInfo($"  Type:     {collector.CollectorType}");
@@ -152,9 +152,20 @@ namespace SilkETW
 
                     try
                     {
-                        // Then stop and dispose the trace session
-                        task.TraceSession?.Stop();
-                        task.TraceSession?.Dispose();
+                        // For SystemProvider collectors the session is native; stop it via P/Invoke.
+                        if (task.NativeTraceHandle != 0)
+                        {
+                            ETWCollector.StopNativeSession(
+                                task.NativeTraceHandle,
+                                task.EventParseSessionName,
+                                task.CollectorGUID);
+                        }
+                        else
+                        {
+                            // Kernel / User collectors use the managed TraceEventSession wrapper.
+                            task.TraceSession?.Stop();
+                            task.TraceSession?.Dispose();
+                        }
                         SilkUtility.WriteInfo($"Collector {task.CollectorGUID}: stopped");
                     }
                     catch (Exception ex)

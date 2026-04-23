@@ -62,5 +62,26 @@
     <UserKeywords>0xffffffffffffffff</UserKeywords>
   </ETWCollector>
 
+  <!--
+    Object Manager handle tracing (SystemProvider).
+    Windows 11+          => modern path: System Object Provider via EnableTraceEx2.
+    Windows 8 / 10 / Server 2012+ => legacy path: TraceSetInformation with PERF_OB_HANDLE.
+    Ref: https://learn.microsoft.com/en-us/windows/win32/etw/system-providers
+
+    EventIdFilter useful values:
+      32, 33 = CreateHandle, CloseHandle
+      34     = DuplicateHandle
+      36, 37 = TypeDCStart, TypeDCEnd
+      38, 39 = HandleDCStart, HandleDCEnd
+  -->
+  <ETWCollector>
+    <Guid>a1b2c3d4-e5f6-7890-abcd-ef1234567890</Guid>
+    <CollectorType>SystemProvider</CollectorType>
+    <ProviderName>febd7460-3d1d-47eb-af49-c9eeb1e146f2</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+    <EventIdFilter>32,33,34,36,37,38,39</EventIdFilter>
+  </ETWCollector>
+
 
 </SilkETWConfig>

@@ -1,0 +1,364 @@
+<instrumentationManifest xmlns="http://schemas.microsoft.com/win/2004/08/events">
+  <instrumentation xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:win="http://manifests.microsoft.com/win/2004/08/windows/events">
+    <events>
+      <provider name="Microsoft-Windows-IIS-Configuration" guid="{dc0b8e51-4863-407a-bc3c-1b479b2978ac}" resourceFileName="Microsoft-Windows-IIS-Configuration" messageFileName="Microsoft-Windows-IIS-Configuration" symbol="MicrosoftWindowsIISConfiguration" source="Xml">
+        <keywords>
+          <keyword name="Read" message="$(string.keyword_Read)" mask="0x1" />
+          <keyword name="Write" message="$(string.keyword_Write)" mask="0x2" />
+        </keywords>
+        <tasks>
+          <task name="task_0" message="$(string.task_task_0)" value="0" />
+        </tasks>
+        <maps>
+          <valueMap name="ErrorType">
+            <map value="0x1" message="$(string.map_ErrorTypeUnknown)" />
+            <map value="0x2" message="$(string.map_ErrorTypeXml)" />
+            <map value="0x3" message="$(string.map_ErrorTypeConfig)" />
+            <map value="0x4" message="$(string.map_ErrorTypeOther)" />
+          </valueMap>
+          <valueMap name="EditOperationType">
+            <map value="0x1" message="$(string.map_EditOperationTypeAdd)" />
+            <map value="0x2" message="$(string.map_EditOperationTypeDelete)" />
+            <map value="0x3" message="$(string.map_EditOperationTypeModify)" />
+          </valueMap>
+          <valueMap name="EncryptionProviderErrorType">
+            <map value="0x1" message="$(string.map_EncryptionProviderErrorTypeConfigurationReadFailure)" />
+            <map value="0x2" message="$(string.map_EncryptionProviderErrorTypeUuencodeApiFailure)" />
+            <map value="0x3" message="$(string.map_EncryptionProviderErrorTypeUudecodeApiFailure)" />
+            <map value="0x4" message="$(string.map_EncryptionProviderErrorTypeCryptAcquireContextApiFailure)" />
+            <map value="0x5" message="$(string.map_EncryptionProviderErrorTypeCryptGetUserKeyApiFailure)" />
+            <map value="0x6" message="$(string.map_EncryptionProviderErrorTypeCryptExportKeyApiFailure)" />
+            <map value="0x7" message="$(string.map_EncryptionProviderErrorTypeCryptImportKeyApiFailure)" />
+            <map value="0x8" message="$(string.map_EncryptionProviderErrorTypeCryptGetKeyParamApiFailure)" />
+            <map value="0x9" message="$(string.map_EncryptionProviderErrorTypeThreadImpersonationFailure)" />
+            <map value="0xa" message="$(string.map_EncryptionProviderErrorTypeInvalidKeyAlgorithmForAesProviderr)" />
+            <map value="0xb" message="$(string.map_EncryptionProviderErrorTypeCryptProtectDataApiFailure)" />
+            <map value="0xc" message="$(string.map_EncryptionProviderErrorTypeCryptUnprotectDataApiFailure)" />
+            <map value="0xd" message="$(string.map_EncryptionProviderErrorTypeCryptEncryptApiFailure)" />
+            <map value="0xe" message="$(string.map_EncryptionProviderErrorTypeCryptDecryptApiFailure)" />
+            <map value="0xf" message="$(string.map_EncryptionProviderErrorTypeCryptGenKeyApiFailure)" />
+            <map value="0x10" message="$(string.map_EncryptionProviderErrorTypeCryptGenRandomApiFailure)" />
+          </valueMap>
+          <valueMap name="ChangeListenerType">
+            <map value="0x1" message="$(string.map_ChangeListenerTypeStandard)" />
+            <map value="0x2" message="$(string.map_ChangeListenerTypeApplication Isolation)" />
+            <map value="0x3" message="$(string.map_ChangeListenerTypeAppHostChangeHandler)" />
+          </valueMap>
+        </maps>
+        <events>
+          <event value="3" symbol="task_0" version="0" task="task_0" level="win:Verbose" template="task_0Args" />
+          <event value="7" symbol="task_07" version="0" task="task_0" level="win:Verbose" template="task_07Args" />
+          <event value="8" symbol="task_08" version="0" task="task_0" level="win:Verbose" template="task_07Args" />
+          <event value="9" symbol="task_09" version="0" task="task_0" level="win:Verbose" template="task_07Args" />
+          <event value="10" symbol="task_010" version="0" task="task_0" level="win:Error" template="task_010Args" />
+          <event value="12" symbol="task_012" version="0" task="task_0" level="win:Warning" template="task_012Args" />
+          <event value="13" symbol="task_013" version="0" task="task_0" level="win:Verbose" template="task_013Args" />
+          <event value="14" symbol="task_014" version="0" task="task_0" level="win:Informational" template="task_014Args" />
+          <event value="15" symbol="task_015" version="0" task="task_0" level="win:Verbose" template="task_015Args" />
+          <event value="16" symbol="task_016" version="0" task="task_0" level="win:Verbose" template="task_016Args" />
+          <event value="17" symbol="task_017" version="0" task="task_0" level="win:Verbose" template="task_017Args" />
+          <event value="18" symbol="task_018" version="0" task="task_0" level="win:Verbose" template="task_017Args" />
+          <event value="19" symbol="task_019" version="0" task="task_0" level="win:Verbose" template="task_017Args" />
+          <event value="20" symbol="task_020" version="0" task="task_0" level="win:Verbose" template="task_017Args" />
+          <event value="21" symbol="task_021" version="0" task="task_0" level="win:Verbose" template="task_017Args" />
+          <event value="23" symbol="task_023" version="0" task="task_0" level="win:Verbose" template="task_023Args" />
+          <event value="24" symbol="task_024" version="0" task="task_0" level="win:Informational" template="task_024Args" />
+          <event value="25" symbol="task_025" version="0" task="task_0" level="win:Verbose" template="task_025Args" />
+          <event value="27" symbol="task_027" version="0" task="task_0" level="win:Informational" template="task_027Args" />
+          <event value="28" symbol="task_028" version="0" task="task_0" level="win:Informational" template="task_028Args" />
+          <event value="29" symbol="task_029" version="0" task="task_0" level="win:Verbose" template="task_029Args" />
+          <event value="30" symbol="task_030" version="0" task="task_0" level="win:Error" template="task_030Args" />
+          <event value="33" symbol="task_033" version="0" task="task_0" level="win:Error" template="task_033Args" />
+          <event value="36" symbol="task_036" version="0" task="task_0" level="win:Verbose" template="task_036Args" />
+          <event value="37" symbol="task_037" version="0" task="task_0" level="win:Informational" template="task_037Args" />
+          <event value="38" symbol="task_038" version="0" task="task_0" level="win:Informational" template="task_038Args" />
+          <event value="39" symbol="task_039" version="0" task="task_0" level="win:Error" template="task_038Args" />
+          <event value="40" symbol="task_040" version="0" task="task_0" level="win:Error" template="task_037Args" />
+          <event value="41" symbol="task_041" version="0" task="task_0" level="win:Error" template="task_041Args" />
+          <event value="42" symbol="task_042" version="0" task="task_0" level="win:Error" template="task_042Args" />
+          <event value="43" symbol="task_043" version="0" task="task_0" level="win:Error" template="task_043Args" />
+          <event value="44" symbol="task_044" version="0" task="task_0" level="win:Error" template="task_042Args" />
+          <event value="45" symbol="task_045" version="0" task="task_0" level="win:Informational" template="task_07Args" />
+          <event value="46" symbol="task_046" version="0" task="task_0" level="win:Verbose" template="task_046Args" />
+          <event value="47" symbol="task_047" version="0" task="task_0" level="win:Verbose" template="task_047Args" />
+          <event value="49" symbol="task_049" version="0" task="task_0" level="win:Informational" template="task_049Args" />
+          <event value="50" symbol="task_050" version="0" task="task_0" level="win:Informational" template="task_07Args" />
+          <event value="51" symbol="task_051" version="0" task="task_0" level="win:Error" template="task_051Args" />
+          <event value="52" symbol="task_052" version="0" task="task_0" level="win:Verbose" template="task_051Args" />
+          <event value="53" symbol="task_053" version="0" task="task_0" level="win:Warning" template="task_046Args" />
+          <event value="54" symbol="task_054" version="0" task="task_0" level="win:Informational" />
+          <event value="55" symbol="task_055" version="0" task="task_0" level="win:Informational" template="task_055Args" />
+          <event value="56" symbol="task_056" version="0" task="task_0" level="win:Informational" template="task_056Args" />
+          <event value="57" symbol="task_057" version="0" task="task_0" level="win:Informational" template="task_055Args" />
+          <event value="58" symbol="task_058" version="0" task="task_0" level="win:Informational" template="task_056Args" />
+          <event value="59" symbol="task_059" version="0" task="task_0" level="win:Informational" template="task_056Args" />
+          <event value="60" symbol="task_060" version="0" task="task_0" level="win:Informational" />
+          <event value="61" symbol="task_061" version="0" task="task_0" level="win:Informational" template="task_061Args" />
+          <event value="62" symbol="task_062" version="0" task="task_0" level="win:Informational" template="task_062Args" />
+          <event value="63" symbol="task_063" version="0" task="task_0" level="win:Informational" template="task_063Args" />
+          <event value="64" symbol="task_064" version="0" task="task_0" level="win:Informational" template="task_055Args" />
+          <event value="65" symbol="task_065" version="0" task="task_0" level="win:Verbose" template="task_065Args" />
+        </events>
+        <templates>
+          <template tid="task_0Args">
+            <data name="Address" inType="win:Pointer" />
+            <data name="ConfigCacheAddress" inType="win:Pointer" />
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="FileChangeNotificationMonitorAddress" inType="win:Pointer" />
+            <data name="ConfigFileAddress" inType="win:Pointer" />
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+          </template>
+          <template tid="task_07Args">
+            <data name="ConfigPath" inType="win:UnicodeString" />
+          </template>
+          <template tid="task_010Args">
+            <data name="HRESULT" inType="win:HexInt32" />
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="Type" inType="win:UInt32" map="ErrorType" />
+            <data name="Message" inType="win:UnicodeString" />
+            <data name="LineNumber" inType="win:UInt32" />
+            <data name="PreviousLine" inType="win:UnicodeString" />
+            <data name="ErrorLine" inType="win:UnicodeString" />
+            <data name="NextLine" inType="win:UnicodeString" />
+          </template>
+          <template tid="task_012Args">
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="FileConfigPath" inType="win:UnicodeString" />
+            <data name="EffectiveLocationPath" inType="win:UnicodeString" />
+            <data name="SectionPath" inType="win:UnicodeString" />
+          </template>
+          <template tid="task_013Args">
+            <data name="ConfigFileObjectAddress" inType="win:Pointer" />
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="CryptoImpersonationToken" inType="win:Pointer" />
+            <data name="FileImpersonationToken" inType="win:Pointer" />
+            <data name="LastModifiedTime" inType="win:FILETIME" />
+            <data name="FileSize" inType="win:UInt64" />
+          </template>
+          <template tid="task_014Args">
+            <data name="RedirectionPath" inType="win:UnicodeString" />
+            <data name="Username" inType="win:UnicodeString" />
+            <data name="Password" inType="win:UnicodeString" />
+          </template>
+          <template tid="task_015Args">
+            <data name="CallSite" inType="win:UnicodeString" />
+            <data name="lpFileName" inType="win:UnicodeString" />
+            <data name="dwDesiredAccess" inType="win:HexInt32" />
+            <data name="dwShareMode" inType="win:HexInt32" />
+            <data name="dwCreationDisposition" inType="win:HexInt32" />
+            <data name="dwFlagsAndAttributes" inType="win:HexInt32" />
+            <data name="IsTransacted" inType="win:Boolean" />
+            <data name="Handle" inType="win:Pointer" />
+            <data name="GetLastError" inType="win:HexInt32" />
+          </template>
+          <template tid="task_016Args">
+            <data name="Domain" inType="win:UnicodeString" />
+            <data name="User" inType="win:UnicodeString" />
+            <data name="Password" inType="win:UnicodeString" />
+            <data name="TokenHandle" inType="win:Pointer" />
+          </template>
+          <template tid="task_017Args">
+            <data name="Address" inType="win:Pointer" />
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="Directory" inType="win:UnicodeString" />
+            <data name="File" inType="win:UnicodeString" />
+            <data name="WatchSubPaths" inType="win:Boolean" />
+            <data name="IsPollingMonitor" inType="win:Boolean" />
+            <data name="IsSchemaFileMonitor" inType="win:Boolean" />
+          </template>
+          <template tid="task_023Args">
+            <data name="TargetAddress" inType="win:Pointer" />
+            <data name="TargetType" inType="win:UInt32" />
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="IsGranular" inType="win:Boolean" />
+            <data name="IsApplicationSpecific" inType="win:Boolean" />
+            <data name="IsLocationTag" inType="win:Boolean" />
+          </template>
+          <template tid="task_024Args">
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="LastModifiedTime" inType="win:FILETIME" />
+            <data name="FileSize" inType="win:UInt64" />
+          </template>
+          <template tid="task_025Args">
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+          </template>
+          <template tid="task_027Args">
+            <data name="FileConfigPath" inType="win:UnicodeString" />
+            <data name="EffectiveLocationPath" inType="win:UnicodeString" />
+            <data name="CallSite" inType="win:UnicodeString" />
+            <data name="Address" inType="win:Pointer" />
+            <data name="TargetName" inType="win:UnicodeString" />
+            <data name="MetadataName" inType="win:UnicodeString" />
+            <data name="Value" inType="win:UnicodeString" />
+          </template>
+          <template tid="task_028Args">
+            <data name="OriginalImpersonationTokenHandle" inType="win:Pointer" />
+            <data name="ImpersonationTokenHandle" inType="win:Pointer" />
+          </template>
+          <template tid="task_029Args">
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="EffectiveLocationPath" inType="win:UnicodeString" />
+            <data name="Configuration" inType="win:UnicodeString" />
+            <data name="EditOperationType" inType="win:UInt32" map="EditOperationType" />
+            <data name="OldValue" inType="win:UnicodeString" />
+            <data name="NewValue" inType="win:UnicodeString" />
+          </template>
+          <template tid="task_030Args">
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="EffectiveLocationPath" inType="win:UnicodeString" />
+            <data name="Configuration" inType="win:UnicodeString" />
+            <data name="EditOperationType" inType="win:UInt32" />
+            <data name="OldValue" inType="win:UnicodeString" />
+            <data name="NewValue" inType="win:UnicodeString" />
+          </template>
+          <template tid="task_033Args">
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+          </template>
+          <template tid="task_036Args">
+            <data name="CallSite" inType="win:UnicodeString" />
+            <data name="hSourceHandle" inType="win:Pointer" />
+            <data name="hTargetHandle" inType="win:Pointer" />
+          </template>
+          <template tid="task_037Args">
+            <data name="SiteName" inType="win:UnicodeString" />
+          </template>
+          <template tid="task_038Args">
+            <data name="Id" inType="win:UInt32" />
+          </template>
+          <template tid="task_041Args">
+            <data name="Configuration" inType="win:UnicodeString" />
+            <data name="CLSID" inType="win:GUID" />
+            <data name="ProgId" inType="win:UnicodeString" />
+            <data name="HRESULT" inType="win:HexInt32" />
+          </template>
+          <template tid="task_042Args">
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="FileConfigPath" inType="win:UnicodeString" />
+            <data name="ProviderName" inType="win:UnicodeString" />
+            <data name="ProviderType" inType="win:UnicodeString" />
+            <data name="Blob" inType="win:UnicodeString" />
+            <data name="ErrorType" inType="win:UInt32" />
+            <data name="HRESULT" inType="win:HexInt32" />
+          </template>
+          <template tid="task_043Args">
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="FileConfigPath" inType="win:UnicodeString" />
+            <data name="ProviderName" inType="win:UnicodeString" />
+            <data name="ProviderType" inType="win:UnicodeString" />
+            <data name="Blob" inType="win:UnicodeString" />
+            <data name="ErrorType" inType="win:UInt32" map="EncryptionProviderErrorType" />
+            <data name="HRESULT" inType="win:HexInt32" />
+          </template>
+          <template tid="task_046Args">
+            <data name="SiteName" inType="win:UnicodeString" />
+            <data name="ApplicationPath" inType="win:UnicodeString" />
+            <data name="VirtualDirectoryPath" inType="win:UnicodeString" />
+            <data name="RelativeVirtualPath" inType="win:UnicodeString" />
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+          </template>
+          <template tid="task_047Args">
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="Directory" inType="win:UnicodeString" />
+            <data name="Filename" inType="win:UnicodeString" />
+            <data name="ImpersonationToken" inType="win:Pointer" />
+            <data name="IsCustomMapping" inType="win:Boolean" />
+          </template>
+          <template tid="task_049Args">
+            <data name="CallSite" inType="win:UnicodeString" />
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="FileConfigPath" inType="win:UnicodeString" />
+            <data name="EffectiveLocationPath" inType="win:UnicodeString" />
+            <data name="ConfigurationElementName" inType="win:UnicodeString" />
+            <data name="ConfigSourceFilePath" inType="win:UnicodeString" />
+            <data name="LastModifiedTime" inType="win:FILETIME" />
+          </template>
+          <template tid="task_051Args">
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="FileExistsInMemory" inType="win:Boolean" />
+            <data name="FileLastModifiedTimeInMemory" inType="win:FILETIME" />
+            <data name="FileSizeInMemory" inType="win:UInt64" />
+            <data name="FileExistsOnDisk" inType="win:Boolean" />
+            <data name="FileLastModifiedTimeOnDisk" inType="win:FILETIME" />
+            <data name="FileSizeOnDisk" inType="win:UInt64" />
+            <data name="IsInMemoryViewOfFileRecent" inType="win:Boolean" />
+          </template>
+          <template tid="task_055Args">
+            <data name="HRESULT" inType="win:HexInt32" />
+          </template>
+          <template tid="task_056Args">
+            <data name="Handle" inType="win:Pointer" />
+            <data name="HRESULT" inType="win:HexInt32" />
+          </template>
+          <template tid="task_061Args">
+            <data name="Handle" inType="win:Pointer" />
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="RemainingRetryCount" inType="win:UInt32" />
+            <data name="HRESULT" inType="win:HexInt32" />
+          </template>
+          <template tid="task_062Args">
+            <data name="Handle" inType="win:Pointer" />
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="HRESULT" inType="win:HexInt32" />
+          </template>
+          <template tid="task_063Args">
+            <data name="Handle" inType="win:Pointer" />
+            <data name="PhysicalPath" inType="win:UnicodeString" />
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="SizeInBytes" inType="win:HexInt32" />
+            <data name="HRESULT" inType="win:HexInt32" />
+          </template>
+          <template tid="task_065Args">
+            <data name="TargetAddress" inType="win:Pointer" />
+            <data name="TargetType" inType="win:UInt32" map="ChangeListenerType" />
+            <data name="ConfigPath" inType="win:UnicodeString" />
+            <data name="IsGranular" inType="win:Boolean" />
+            <data name="IsApplicationSpecific" inType="win:Boolean" />
+            <data name="IsLocationTag" inType="win:Boolean" />
+          </template>
+        </templates>
+      </provider>
+    </events>
+  </instrumentation>
+  <localization>
+    <resources culture="en-US">
+      <stringTable>
+        <string id="keyword_Read" value="Read" />
+        <string id="keyword_Write" value="Write" />
+        <string id="task_task_0" value="task_0" />
+        <string id="map_ErrorTypeUnknown" value="Unknown" />
+        <string id="map_ErrorTypeXml" value="Xml" />
+        <string id="map_ErrorTypeConfig" value="Config" />
+        <string id="map_ErrorTypeOther" value="Other" />
+        <string id="map_EditOperationTypeAdd" value="Add" />
+        <string id="map_EditOperationTypeDelete" value="Delete" />
+        <string id="map_EditOperationTypeModify" value="Modify" />
+        <string id="map_EncryptionProviderErrorTypeConfigurationReadFailure" value="ConfigurationReadFailure" />
+        <string id="map_EncryptionProviderErrorTypeUuencodeApiFailure" value="UuencodeApiFailure" />
+        <string id="map_EncryptionProviderErrorTypeUudecodeApiFailure" value="UudecodeApiFailure" />
+        <string id="map_EncryptionProviderErrorTypeCryptAcquireContextApiFailure" value="CryptAcquireContextApiFailure" />
+        <string id="map_EncryptionProviderErrorTypeCryptGetUserKeyApiFailure" value="CryptGetUserKeyApiFailure" />
+        <string id="map_EncryptionProviderErrorTypeCryptExportKeyApiFailure" value="CryptExportKeyApiFailure" />
+        <string id="map_EncryptionProviderErrorTypeCryptImportKeyApiFailure" value="CryptImportKeyApiFailure" />
+        <string id="map_EncryptionProviderErrorTypeCryptGetKeyParamApiFailure" value="CryptGetKeyParamApiFailure" />
+        <string id="map_EncryptionProviderErrorTypeThreadImpersonationFailure" value="ThreadImpersonationFailure" />
+        <string id="map_EncryptionProviderErrorTypeInvalidKeyAlgorithmForAesProviderr" value="InvalidKeyAlgorithmForAesProviderr" />
+        <string id="map_EncryptionProviderErrorTypeCryptProtectDataApiFailure" value="CryptProtectDataApiFailure" />
+        <string id="map_EncryptionProviderErrorTypeCryptUnprotectDataApiFailure" value="CryptUnprotectDataApiFailure" />
+        <string id="map_EncryptionProviderErrorTypeCryptEncryptApiFailure" value="CryptEncryptApiFailure" />
+        <string id="map_EncryptionProviderErrorTypeCryptDecryptApiFailure" value="CryptDecryptApiFailure" />
+        <string id="map_EncryptionProviderErrorTypeCryptGenKeyApiFailure" value="CryptGenKeyApiFailure" />
+        <string id="map_EncryptionProviderErrorTypeCryptGenRandomApiFailure" value="CryptGenRandomApiFailure" />
+        <string id="map_ChangeListenerTypeStandard" value="Standard" />
+        <string id="map_ChangeListenerTypeApplication Isolation" value="Application Isolation" />
+        <string id="map_ChangeListenerTypeAppHostChangeHandler" value="AppHostChangeHandler" />
+      </stringTable>
+    </resources>
+  </localization>
+</instrumentationManifest>
