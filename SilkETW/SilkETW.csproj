@@ -408,6 +408,7 @@
     <None Include="ConfigTemplates\ETW\writing-manifest-based-events.md" />
     <None Include="ConfigTemplates\ETW\writing-related-events-in-a-manifest-base-provider.md" />
     <None Include="ConfigTemplates\ETW\writing-related-events-in-an-end-to-end-scenario.md" />
+    <None Include="ConfigTemplates\Inspector %282%29.csv" />
     <None Include="packages.config" />
     <None Include="task_for_agent_windows11_system_object_provider_with_legacy_fallback.md" />
   </ItemGroup>
@@ -425,16 +426,15 @@
     <Content Include="ConfigTemplates\Microsoft-Windows-Kernel-File_manifest.xml" />
     <Content Include="ConfigTemplates\Microsoft-Windows-Kernel-Process_manifest.xml" />
     <Content Include="ConfigTemplates\Microsoft-Windows-VolumeSnapshot-Driver_manifest.xml" />
-    <Content Include="ConfigTemplates\SilkETWConfig_BlueHammer.xml" />
+    <Content Include="ConfigTemplates\SilkETWConfig_BlueHammer.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="ConfigTemplates\SilkETWConfig_Certificates.xml" />
     <Content Include="ConfigTemplates\SilkETWConfig_IIS.xml" />
     <Content Include="ConfigTemplates\SilkETWConfig_ObjectManager.xml" />
     <Content Include="ConfigTemplates\SilkETWConfig_Office.xml" />
     <Content Include="ConfigTemplates\SilkETWConfig_Shadowcopy.xml" />
     <Content Include="ConfigTemplates\Windows_Kernel_Trace_WMI.txt" />
-    <Content Include="SilkETWConfig.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
