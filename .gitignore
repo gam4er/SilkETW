@@ -8,3 +8,5 @@
 /SilkETW/bin
 /SilkETW/.vs
 *.csv
+/Import-NdjsonToElastic/_bulk_import_*
+*.ndjson

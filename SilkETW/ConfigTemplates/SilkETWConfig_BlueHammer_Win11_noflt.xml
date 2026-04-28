@@ -46,7 +46,6 @@
     <Guid>f9beff90-c9ad-4f39-b4fc-49be905f8d35</Guid>
     <CollectorType>Kernel</CollectorType>
     <KernelKeywords>100665088</KernelKeywords>
-    <EventIdFilter>64,69,71,75,79,80,81</EventIdFilter>
     <!-- <EnableStackTracing>true</EnableStackTracing> -->
   </ETWCollector>
 
@@ -82,8 +81,10 @@
     <CollectorType>User</CollectorType>
     <ProviderName>edd08927-9cc4-4e65-b970-c2560fb5c289</ProviderName>
     <UserTraceEventLevel>Informational</UserTraceEventLevel>
-    <UserKeywords>0x0820</UserKeywords>
+    <UserKeywords>0x18f0</UserKeywords>
+    <!--
     <EventIdFilter>23,27,28,29</EventIdFilter>
+    -->
   </ETWCollector>
 
   <!--
@@ -108,8 +109,7 @@
            SYSTEM_OBJECT_KW_HANDLE (0x1) — create/close/duplicate only. -->
       <Provider>
         <Guid>febd7460-3d1d-47eb-af49-c9eeb1e146f2</Guid>
-        <UserKeywords>0x1</UserKeywords>
-        <OpcodeFilter>32,33,34,38,39</OpcodeFilter>
+        <UserKeywords>0xffffffffffffffff</UserKeywords>
       </Provider>
 
       <!-- System Process Provider: process/thread/image lifetime -->

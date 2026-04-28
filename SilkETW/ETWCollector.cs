@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Xml;
@@ -75,6 +76,14 @@ namespace SilkETW
 
                         SilkUtility.WriteInfo(
                             $"Collector {collector.CollectorGUID}: Kernel provider enable succeeded");
+
+                        // Optional: kernel call-stack tracing for classic kernel events.
+                        // Enabled via <EnableStackTracing>true</EnableStackTracing> in config.
+                        if (collector.EnableStackTracing)
+                        {
+                            ulong handle = GetManagedSessionHandle(traceSession);
+                            EnableStackTracingForSession(handle, collector.CollectorGUID);
+                        }
                     }
                     else
                     {
@@ -91,6 +100,16 @@ namespace SilkETW
 
                         SilkUtility.WriteInfo(
                             $"Collector {collector.CollectorGUID}: User provider enable succeeded");
+
+                        // Optional: binary-path tracking for User (manifest-based) providers.
+                        // Emits EventTraceGuid/opcode=0x43 events mapping provider GUIDs to
+                        // the DLL/EXE path of the ETW callback — useful for threat hunting.
+                        // Enabled via <EnableProviderBinaryTracking>true</EnableProviderBinaryTracking>.
+                        if (collector.EnableProviderBinaryTracking)
+                        {
+                            ulong handle = GetManagedSessionHandle(traceSession);
+                            EnableProviderBinaryTrackingForSession(handle, collector.CollectorGUID);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -757,6 +776,166 @@ namespace SilkETW
         }
 
         /// <summary>
+        /// Retrieves the native trace handle from a managed <see cref="TraceEventSession"/>
+        /// via reflection. The field/property name varies across TraceEvent library versions;
+        /// the method tries several known names and falls back to 0 on failure.
+        /// </summary>
+        private static ulong GetManagedSessionHandle(TraceEventSession session)
+        {
+            const BindingFlags flags =
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public;
+            Type t = session.GetType();
+
+            // TraceEvent 3.x stores the handle in m_SessionHandle (ulong or TraceHandle struct).
+            foreach (string name in new[] { "m_SessionHandle", "m_Handle", "sessionHandle" })
+            {
+                FieldInfo f = t.GetField(name, flags);
+                if (f == null) continue;
+                object val = f.GetValue(session);
+                if (val is ulong u && u != 0) return u;
+                if (val is long  l && l  > 0) return (ulong)l;
+                // If it is a struct (TraceHandle) try its Value property.
+                if (val != null)
+                {
+                    PropertyInfo vp = val.GetType().GetProperty("Value", flags);
+                    if (vp != null)
+                    {
+                        object v = vp.GetValue(val);
+                        if (v is ulong u2 && u2 != 0) return u2;
+                    }
+                }
+            }
+
+            // Some versions expose a public property.
+            foreach (string name in new[] { "SessionHandle", "Handle" })
+            {
+                PropertyInfo p = t.GetProperty(name, flags);
+                if (p == null) continue;
+                object val = p.GetValue(session);
+                if (val is ulong u && u != 0) return u;
+                if (val is long  l && l  > 0) return (ulong)l;
+                if (val != null)
+                {
+                    PropertyInfo vp = val.GetType().GetProperty("Value", flags);
+                    if (vp != null)
+                    {
+                        object v = vp.GetValue(val);
+                        if (v is ulong u2 && u2 != 0) return u2;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Enables binary-path provider tracking for the session.
+        /// ETW will emit events (EventTraceGuid, opcode 0x43) that map each enabled
+        /// provider GUID to the full path of the DLL/EXE containing its callback.
+        /// Useful for detecting rogue or hijacked ETW providers in threat hunting.
+        ///
+        /// Only meaningful for User-mode (manifest-based) collectors.
+        /// Requires Windows 10 version 1709 (build 16299) or later.
+        /// Ref: TRACE_QUERY_INFO_CLASS.TraceProviderBinaryTracking (18)
+        /// </summary>
+        private static void EnableProviderBinaryTrackingForSession(
+            ulong traceHandle,
+            Guid  collectorGuid)
+        {
+            if (traceHandle == 0)
+            {
+                SilkUtility.WriteWarning(
+                    $"Collector {collectorGuid}: binary tracking skipped — could not obtain native session handle");
+                return;
+            }
+
+            // TraceProviderBinaryTracking requires Win10 1709+ (build 16299).
+            var os = GetWindowsVersion();
+            if (!(os.Major >= 10 && os.Build >= 16299))
+            {
+                SilkUtility.WriteWarning(
+                    $"Collector {collectorGuid}: binary tracking requires Windows 10 1709+ (build 16299); " +
+                    $"current build {os.Build} — skipped");
+                return;
+            }
+
+            IntPtr buf = Marshal.AllocHGlobal(1);
+            try
+            {
+                Marshal.WriteByte(buf, 0, 1); // BOOLEAN TRUE
+                uint status = TraceSetInformation(
+                    traceHandle,
+                    SilkConstants.TraceProviderBinaryTracking,
+                    buf,
+                    1);
+
+                if (status == 0)
+                    SilkUtility.WriteInfo(
+                        $"Collector {collectorGuid}: provider binary tracking enabled " +
+                        "(EventTraceGuid/opcode=0x43 events will appear in NDJSON)");
+                else
+                    SilkUtility.WriteWarning(
+                        $"Collector {collectorGuid}: TraceSetInformation(BinaryTracking) " +
+                        $"returned 0x{status:X8} ({status})");
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(buf);
+            }
+        }
+
+        /// <summary>
+        /// Enables kernel call-stack capture for a predefined set of classic kernel events.
+        /// Stack-walk events (provider StackWalk, opcode 32) arrive as separate records in
+        /// the event stream and are automatically written to NDJSON with Stack1…StackN fields
+        /// containing raw frame addresses (offline symbolication with PDB/symbols required).
+        ///
+        /// Only meaningful for Kernel collectors (classic/WMI kernel events).
+        /// Ref: TRACE_QUERY_INFO_CLASS.TraceStackTracingInfo (3)
+        /// </summary>
+        private static void EnableStackTracingForSession(
+            ulong traceHandle,
+            Guid  collectorGuid)
+        {
+            if (traceHandle == 0)
+            {
+                SilkUtility.WriteWarning(
+                    $"Collector {collectorGuid}: stack tracing skipped — could not obtain native session handle");
+                return;
+            }
+
+            CLASSIC_EVENT_ID[] events  = DefaultStackTraceEvents;
+            int                count   = events.Length;
+            int                itemSz  = Marshal.SizeOf(typeof(CLASSIC_EVENT_ID));
+            int                bufSize = count * itemSz;
+            IntPtr             buf     = Marshal.AllocHGlobal(bufSize);
+            try
+            {
+                for (int i = 0; i < count; i++)
+                    Marshal.StructureToPtr(events[i], new IntPtr(buf.ToInt64() + i * itemSz), false);
+
+                uint status = TraceSetInformation(
+                    traceHandle,
+                    SilkConstants.TraceStackTracingInfo,
+                    buf,
+                    (uint)bufSize);
+
+                if (status == 0)
+                    SilkUtility.WriteInfo(
+                        $"Collector {collectorGuid}: kernel stack tracing enabled for " +
+                        $"{count} classic event(s) — StackWalk records will appear in NDJSON");
+                else
+                    SilkUtility.WriteWarning(
+                        $"Collector {collectorGuid}: TraceSetInformation(StackTracing) " +
+                        $"returned 0x{status:X8} ({status})");
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(buf);
+            }
+        }
+
+        /// <summary>
         /// Stops a native ETW session via ControlTraceW with EVENT_TRACE_CONTROL_STOP.
         /// Called from both the inline TerminateCollector closure and StopAllCollectors.
         /// </summary>
@@ -856,6 +1035,44 @@ namespace SilkETW
         // =====================================================================
         // P/Invoke — structures
         // =====================================================================
+
+        // CLASSIC_EVENT_ID — identifies a classic (WMI/MOF) kernel event by GUID + opcode Type.
+        // Used with TraceSetInformation(TraceStackTracingInfo) to specify which kernel events
+        // should have their call stack captured.
+        // Ref: https://learn.microsoft.com/en-us/windows/win32/api/evntrace/ns-evntrace-classic_event_id
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        private struct CLASSIC_EVENT_ID
+        {
+            public Guid  EventGuid;
+            public byte  Type;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 7)]
+            public byte[] Reserved;
+
+            public CLASSIC_EVENT_ID(Guid guid, byte type)
+            {
+                EventGuid = guid;
+                Type      = type;
+                Reserved  = new byte[7];
+            }
+        }
+
+        // Default kernel events for which stack tracing is enabled when
+        // <EnableStackTracing>true</EnableStackTracing> is set on a Kernel collector.
+        // These are the classic WMI/MOF GUIDs for well-known kernel event sources.
+        // Ref: https://learn.microsoft.com/en-us/windows/win32/etw/nt-kernel-logger-constants
+        private static readonly CLASSIC_EVENT_ID[] DefaultStackTraceEvents =
+        {
+            // Process/Start   (Type 1)
+            new CLASSIC_EVENT_ID(new Guid("3d6fa8d0-fe05-11d0-9dda-00c04fd7ba7c"), 1),
+            // Process/End     (Type 2)
+            new CLASSIC_EVENT_ID(new Guid("3d6fa8d0-fe05-11d0-9dda-00c04fd7ba7c"), 2),
+            // Thread/Start    (Type 1)
+            new CLASSIC_EVENT_ID(new Guid("3d6fa8d1-fe05-11d0-9dda-00c04fd7ba7c"), 1),
+            // Image/Load      (Type 10)
+            new CLASSIC_EVENT_ID(new Guid("2cb15d1d-5fc1-11d2-abe1-00a0c911f518"), 10),
+            // FileIO/Create   (Type 64)
+            new CLASSIC_EVENT_ID(new Guid("90cbdc39-4a3e-11d1-84f4-0000f80464e3"), 64),
+        };
 
         // WNODE_HEADER — embedded in EVENT_TRACE_PROPERTIES.
         // Ref: https://learn.microsoft.com/en-us/windows/win32/api/evntrace/ns-evntrace-event_trace_properties

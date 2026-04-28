@@ -62,6 +62,8 @@ namespace SilkETW
             XName xSysProvEntry     = XName.Get("Provider");
             XName xEnableFlags      = XName.Get("EnableFlags");
             XName xInformationClass = XName.Get("InformationClass");
+            XName xEnableBinaryTracking = XName.Get("EnableProviderBinaryTracking");
+            XName xEnableStackTracing   = XName.Get("EnableStackTracing");
 
             try
             {
@@ -128,6 +130,20 @@ namespace SilkETW
                         && int.TryParse(icVal, out int icParsed)
                         ? icParsed
                         : SilkConstants.TraceSystemTraceEnableFlagsInfo;
+
+                    // EnableProviderBinaryTracking (optional, User collectors only):
+                    // calls TraceSetInformation(TraceProviderBinaryTracking) after provider enable.
+                    // Requires Windows 10 version 1709+.
+                    cp.EnableProviderBinaryTracking =
+                        ParseElement(collectorEl, xEnableBinaryTracking, out string ebtVal) &&
+                        string.Equals(ebtVal, "true", StringComparison.OrdinalIgnoreCase);
+
+                    // EnableStackTracing (optional, Kernel collectors only):
+                    // calls TraceSetInformation(TraceStackTracingInfo) after kernel provider enable.
+                    // Stack-walk events arrive as separate NDJSON records with Stack1…StackN.
+                    cp.EnableStackTracing =
+                        ParseElement(collectorEl, xEnableStackTracing, out string estVal) &&
+                        string.Equals(estVal, "true", StringComparison.OrdinalIgnoreCase);
 
                     result.Add(cp);
                 }
@@ -348,6 +364,21 @@ namespace SilkETW
                     var patched = c;
                     patched.EventIdFilter = null;
                     collectors[i] = patched;
+                }
+
+                // Warn about feature flags used on wrong collector types.
+                if (c.EnableProviderBinaryTracking && c.CollectorType != CollectorType.User)
+                {
+                    SilkUtility.WriteWarning(
+                        $"Collector {c.CollectorGUID}: EnableProviderBinaryTracking is only " +
+                        "supported on User collectors — flag will be ignored");
+                }
+
+                if (c.EnableStackTracing && c.CollectorType != CollectorType.Kernel)
+                {
+                    SilkUtility.WriteWarning(
+                        $"Collector {c.CollectorGUID}: EnableStackTracing is only " +
+                        "supported on Kernel collectors — flag will be ignored");
                 }
             }
 

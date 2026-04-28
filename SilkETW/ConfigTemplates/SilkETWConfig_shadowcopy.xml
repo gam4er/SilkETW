@@ -68,19 +68,34 @@
     Windows 8 / 10 / Server 2012+ => legacy path: TraceSetInformation with PERF_OB_HANDLE.
     Ref: https://learn.microsoft.com/en-us/windows/win32/etw/system-providers
 
-    EventIdFilter useful values:
+    NOTE: Do NOT use <ProviderName> for SystemProvider collectors — that element
+    is only for User (manifest-based) collectors.  System Provider GUIDs must be
+    listed inside <SystemProviderGuids>.
+
+    OpcodeFilter values (handle lifecycle):
       32, 33 = CreateHandle, CloseHandle
       34     = DuplicateHandle
-      36, 37 = TypeDCStart, TypeDCEnd
       38, 39 = HandleDCStart, HandleDCEnd
   -->
   <ETWCollector>
     <Guid>a1b2c3d4-e5f6-7890-abcd-ef1234567890</Guid>
     <CollectorType>SystemProvider</CollectorType>
-    <ProviderName>febd7460-3d1d-47eb-af49-c9eeb1e146f2</ProviderName>
+    <SystemProviderGuids>
+      <!-- System Object Provider: SYSTEM_OBJECT_KW_HANDLE (0x1). -->
+      <Provider>
+        <Guid>febd7460-3d1d-47eb-af49-c9eeb1e146f2</Guid>
+        <UserKeywords>0x1</UserKeywords>
+        <OpcodeFilter>32,33,34,38,39</OpcodeFilter>
+      </Provider>
+    </SystemProviderGuids>
+    <!--
+      0x80000040 = PERF_OB_HANDLE — legacy Win8/10 path only; ignored on Win11+.
+      Ref: https://learn.microsoft.com/en-us/windows/win32/etw/obtrace
+    -->
+    <EnableFlags>0x80000040</EnableFlags>
+    <InformationClass>4</InformationClass>
     <UserTraceEventLevel>Verbose</UserTraceEventLevel>
     <UserKeywords>0xffffffffffffffff</UserKeywords>
-    <EventIdFilter>32,33,34,36,37,38,39</EventIdFilter>
   </ETWCollector>
 
 

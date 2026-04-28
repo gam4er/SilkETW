@@ -129,6 +129,27 @@ namespace SilkETW
         public List<SystemProviderSettings> SystemProviders; // optional per-provider settings
         public uint EnableFlags;
         public int  InformationClass;
+
+        // ---- Optional feature flags ----
+
+        /// <summary>
+        /// User collectors only. When true, calls TraceSetInformation(TraceProviderBinaryTracking)
+        /// after enabling the provider. ETW will emit binary-path tracking events
+        /// (ProviderGuid → DLL/EXE path, opcode 0x43) into the session.
+        /// Minimum OS: Windows 10 version 1709 (build 16299).
+        /// Ref: TRACE_QUERY_INFO_CLASS.TraceProviderBinaryTracking
+        /// </summary>
+        public bool EnableProviderBinaryTracking;
+
+        /// <summary>
+        /// Kernel collectors only. When true, calls TraceSetInformation(TraceStackTracingInfo)
+        /// after EnableKernelProvider, enabling kernel call-stack capture for a set of
+        /// classic (WMI/MOF) kernel events. Stack-walk events arrive as separate NDJSON
+        /// records with Stack1…StackN address fields (offline symbolication required).
+        /// Minimum OS: Windows 7.
+        /// Ref: TRACE_QUERY_INFO_CLASS.TraceStackTracingInfo
+        /// </summary>
+        public bool EnableStackTracing;
     }
 
     // Runtime bookkeeping for a running collector
@@ -383,5 +404,21 @@ namespace SilkETW
         // =====================================================================
 
         public const int TraceSystemTraceEnableFlagsInfo = 4;
+
+        /// <summary>
+        /// Enables binary-path tracking for all providers enabled to the session.
+        /// ETW generates mapping events: ProviderGuid → full path of the callback DLL/EXE.
+        /// Events carry provider id EventTraceGuid and opcode 0x43.
+        /// Minimum: Windows 10 version 1709 (build 16299).
+        /// </summary>
+        public const int TraceProviderBinaryTracking = 18;
+
+        /// <summary>
+        /// Enables kernel call-stack capture for the specified set of classic (WMI/MOF)
+        /// kernel events. Stack-walk events arrive as separate ETW events.
+        /// Pass an array of CLASSIC_EVENT_ID structs; pass length 0 to disable.
+        /// Minimum: Windows 7.
+        /// </summary>
+        public const int TraceStackTracingInfo = 3;
     }
 }

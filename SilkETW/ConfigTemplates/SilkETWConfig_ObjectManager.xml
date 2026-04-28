@@ -45,14 +45,38 @@
     <EventIdFilter>64</EventIdFilter>
   </ETWCollector>
 
-  <!-- Object Manager collector.
-       CollectorType = SystemProvider selects modern or legacy path automatically. -->
+  <!--
+    Object Manager collector.
+    CollectorType = SystemProvider selects modern or legacy path automatically.
+
+    NOTE: Do NOT use <ProviderName> for SystemProvider collectors — that element
+    is only for User (manifest-based) collectors.  System Provider GUIDs must be
+    listed inside <SystemProviderGuids>.
+
+    Win11+  : each <Provider> entry is passed to EnableTraceEx2.
+    Win8/10 : EnableFlags bitmask is used via TraceSetInformation (legacy path).
+    Ref: https://learn.microsoft.com/en-us/windows/win32/etw/system-providers
+  -->
   <ETWCollector>
     <Guid>a1b2c3d4-e5f6-7890-abcd-ef1234567890</Guid>
     <CollectorType>SystemProvider</CollectorType>
-    <!-- System Object Provider GUID.
-         Ref: https://learn.microsoft.com/en-us/windows/win32/etw/system-providers -->
-    <ProviderName>febd7460-3d1d-47eb-af49-c9eeb1e146f2</ProviderName>
+    <SystemProviderGuids>
+      <!-- System Object Provider: handle create/close/duplicate events.
+           SYSTEM_OBJECT_KW_HANDLE (0x1) — handle lifecycle events only. -->
+      <Provider>
+        <Guid>febd7460-3d1d-47eb-af49-c9eeb1e146f2</Guid>
+        <UserKeywords>0x1</UserKeywords>
+        <OpcodeFilter>32,33,34,38,39</OpcodeFilter>
+      </Provider>
+    </SystemProviderGuids>
+    <!--
+      EnableFlags: legacy Win8/10 path only; ignored on Win11+ (EnableTraceEx2 used).
+      0x80000040 = PERF_OB_HANDLE — Object Manager handle tracing.
+      Ref: https://learn.microsoft.com/en-us/windows/win32/etw/obtrace
+    -->
+    <EnableFlags>0x80000040</EnableFlags>
+    <!-- InformationClass 4 = TraceSystemTraceEnableFlagsInfo (default). -->
+    <InformationClass>4</InformationClass>
     <UserTraceEventLevel>Verbose</UserTraceEventLevel>
     <UserKeywords>0xffffffffffffffff</UserKeywords>
     <EventIdFilter>32,33,34,36,37,38,39</EventIdFilter>

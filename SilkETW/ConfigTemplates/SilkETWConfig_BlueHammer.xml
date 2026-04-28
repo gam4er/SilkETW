@@ -86,33 +86,29 @@
     <Guid>a1b2c3d4-e5f6-7890-abcd-ef1234567890</Guid>
     <CollectorType>SystemProvider</CollectorType>
     <!--
-      One or more System Provider GUIDs to enable.
-      Win11+:   each GUID is passed to EnableTraceEx2 (modern path).
-      Win8/10:  EnableFlags bitmask is used via TraceSetInformation (legacy path).
+      System Provider GUIDs with per-provider settings.
+      Win11+  : each Provider entry is passed to EnableTraceEx2 with its own keywords.
+      Win8/10 : EnableFlags bitmask is used via TraceSetInformation (per-provider keywords ignored).
       Ref: https://learn.microsoft.com/en-us/windows/win32/etw/system-providers
     -->
     <SystemProviderGuids>
-      <!-- System Object Provider: handle create/close/duplicate events -->
-      <ProviderGuid>febd7460-3d1d-47eb-af49-c9eeb1e146f2</ProviderGuid>
+      <!-- System Object Provider: SYSTEM_OBJECT_KW_HANDLE (0x1) — handle lifecycle only. -->
+      <Provider>
+        <Guid>febd7460-3d1d-47eb-af49-c9eeb1e146f2</Guid>
+        <UserKeywords>0x1</UserKeywords>
+        <OpcodeFilter>32,33,34,38,39</OpcodeFilter>
+      </Provider>
     </SystemProviderGuids>
     <!--
-      EnableFlags: ULONG bitmask for TraceSetInformation on the legacy Win8/10 path.
+      EnableFlags: legacy Win8/10 path only; ignored on Win11+ (EnableTraceEx2 path).
       0x80000040 = PERF_OB_HANDLE — enables Object Manager handle tracing (ObTrace).
       Ref: https://learn.microsoft.com/en-us/windows/win32/etw/obtrace
-      Ignored on Win11+ (EnableTraceEx2 path uses UserKeywords instead).
     -->
     <EnableFlags>0x80000040</EnableFlags>
-    <!--
-      InformationClass: TRACE_INFO_CLASS value for TraceSetInformation.
-      4 = TraceSystemTraceEnableFlagsInfo (default, maps EnableFlags to system trace flags).
-      Ref: TRACE_QUERY_INFO_CLASS enum, evntrace.h
-    -->
+    <!-- InformationClass 4 = TraceSystemTraceEnableFlagsInfo (default). -->
     <InformationClass>4</InformationClass>
     <UserTraceEventLevel>Verbose</UserTraceEventLevel>
     <UserKeywords>0xffffffffffffffff</UserKeywords>
-    <!-- 
-    <EventIdFilter>32,33,34,36,37,38,39</EventIdFilter>
-    -->
   </ETWCollector>
 
   <!-- "Microsoft-Windows-VolumeSnapshot-Driver" -->
