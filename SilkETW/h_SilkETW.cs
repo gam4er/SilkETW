@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.AccessControl;
@@ -94,6 +95,16 @@ namespace SilkETW
     }
 
     // Per-collector configuration parsed from XML
+    public sealed class SystemProviderSettings
+    {
+        public Guid ProviderGuid;
+        public ulong? UserKeywords;
+        public HashSet<int> EventIdFilter;
+        public HashSet<int> OpcodeFilter;
+        public HashSet<string> EventNameFilter;
+        public HashSet<string> EventNamePrefixFilter;
+    }
+
     public struct CollectorParameters
     {
         public Guid CollectorGUID;
@@ -115,6 +126,7 @@ namespace SilkETW
         //   Default = TraceSystemTraceEnableFlagsInfo (4).
         //   Only used on the legacy Win8/10 path.
         public List<Guid> SystemProviderGuids; // null = not a SystemProvider collector
+        public List<SystemProviderSettings> SystemProviders; // optional per-provider settings
         public uint EnableFlags;
         public int  InformationClass;
     }
@@ -130,17 +142,90 @@ namespace SilkETW
         public string EventParseSessionName;
     }
 
+    /// <summary>
+    /// Runtime counters for one collector.
+    /// </summary>
+    public sealed class CollectorRuntimeStats
+    {
+        private long _accepted;
+        private long _filteredOut;
+        private long _written;
+        private long _lost;
+
+        public Guid CollectorGUID { get; set; }
+        public CollectorType CollectorType { get; set; }
+        public string ProviderDisplay { get; set; }
+
+        public long Accepted => Interlocked.Read(ref _accepted);
+        public long FilteredOut => Interlocked.Read(ref _filteredOut);
+        public long Written => Interlocked.Read(ref _written);
+        public long Lost => Interlocked.Read(ref _lost);
+
+        public void IncrementAccepted() => Interlocked.Increment(ref _accepted);
+        public void IncrementFilteredOut() => Interlocked.Increment(ref _filteredOut);
+        public void IncrementWritten() => Interlocked.Increment(ref _written);
+        public void IncrementLost() => Interlocked.Increment(ref _lost);
+    }
+
     static class SilkUtility
     {
         // Thread-safe lists for running collectors
         public static readonly List<CollectorParameters> CollectorParameterSets = new List<CollectorParameters>();
         public static readonly List<Thread> CollectorThreadList = new List<Thread>();
         public static readonly List<CollectorInstance> CollectorTaskList = new List<CollectorInstance>();
+        public static readonly ConcurrentDictionary<Guid, CollectorRuntimeStats> CollectorStats =
+            new ConcurrentDictionary<Guid, CollectorRuntimeStats>();
         public static readonly ManualResetEvent SignalThreadStarted = new ManualResetEvent(false);
 
         // Global event counters (updated from multiple collector threads)
         public static long RunningEventCount;   // all events received from ETW
         public static long FilteredEventCount;  // events that passed the filter and were written
+
+        public static void RegisterCollectorStats(CollectorParameters collector)
+        {
+            string providerDisplay = collector.CollectorType == CollectorType.Kernel
+                ? collector.KernelKeywords.ToString()
+                : collector.CollectorType == CollectorType.SystemProvider
+                    ? (collector.SystemProviderGuids == null || collector.SystemProviderGuids.Count == 0
+                        ? "N/A"
+                        : string.Join(",", collector.SystemProviderGuids))
+                    : collector.ProviderName;
+
+            var stats = new CollectorRuntimeStats
+            {
+                CollectorGUID = collector.CollectorGUID,
+                CollectorType = collector.CollectorType,
+                ProviderDisplay = string.IsNullOrWhiteSpace(providerDisplay)
+                    ? "N/A"
+                    : providerDisplay
+            };
+
+            CollectorStats[collector.CollectorGUID] = stats;
+        }
+
+        public static void IncrementCollectorAccepted(Guid collectorGuid)
+        {
+            if (CollectorStats.TryGetValue(collectorGuid, out CollectorRuntimeStats stats))
+                stats.IncrementAccepted();
+        }
+
+        public static void IncrementCollectorFilteredOut(Guid collectorGuid)
+        {
+            if (CollectorStats.TryGetValue(collectorGuid, out CollectorRuntimeStats stats))
+                stats.IncrementFilteredOut();
+        }
+
+        public static void IncrementCollectorWritten(Guid collectorGuid)
+        {
+            if (CollectorStats.TryGetValue(collectorGuid, out CollectorRuntimeStats stats))
+                stats.IncrementWritten();
+        }
+
+        public static void IncrementCollectorLost(Guid collectorGuid)
+        {
+            if (CollectorStats.TryGetValue(collectorGuid, out CollectorRuntimeStats stats))
+                stats.IncrementLost();
+        }
 
         // Print logo
         public static void PrintLogo()
@@ -218,6 +303,23 @@ namespace SilkETW
     /// </summary>
     static class SilkConstants
     {
+        // =====================================================================
+        // ETW session name constants
+        // =====================================================================
+
+        /// <summary>
+        /// Fixed name for the SystemProvider ETW session.
+        /// A single deterministic name lets the startup purge find and kill
+        /// any session left over from a previous run that was killed forcibly.
+        /// </summary>
+        public const string SystemProviderSessionName = "SilkETWSysProvider";
+
+        /// <summary>
+        /// Prefix used to identify all SilkETW SystemProvider sessions,
+        /// including stale ones created by older builds with random GUID suffixes.
+        /// </summary>
+        public const string SystemProviderSessionPrefix = "SilkETWSysProvider";
+
         // =====================================================================
         // System Provider GUIDs
         // Ref: https://learn.microsoft.com/en-us/windows/win32/etw/system-providers

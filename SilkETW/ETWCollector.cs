@@ -62,14 +62,43 @@ namespace SilkETW
                     ProcessEventData(data, collector, writer, TerminateCollector);
                 };
 
-                if (collector.CollectorType == CollectorType.Kernel)
-                    traceSession.EnableKernelProvider(
-                        (KernelTraceEventParser.Keywords)collector.KernelKeywords);
-                else
-                    traceSession.EnableProvider(
-                        collector.ProviderName,
-                        (TraceEventLevel)collector.UserTraceEventLevel,
-                        collector.UserKeywords);
+                try
+                {
+                    if (collector.CollectorType == CollectorType.Kernel)
+                    {
+                        SilkUtility.WriteInfo(
+                            $"Collector {collector.CollectorGUID}: enabling Kernel provider " +
+                            $"keywords=0x{(long)collector.KernelKeywords:X}");
+
+                        traceSession.EnableKernelProvider(
+                            (KernelTraceEventParser.Keywords)collector.KernelKeywords);
+
+                        SilkUtility.WriteInfo(
+                            $"Collector {collector.CollectorGUID}: Kernel provider enable succeeded");
+                    }
+                    else
+                    {
+                        SilkUtility.WriteInfo(
+                            $"Collector {collector.CollectorGUID}: enabling User provider " +
+                            $"name={collector.ProviderName} " +
+                            $"level={(byte)collector.UserTraceEventLevel} " +
+                            $"keywords=0x{collector.UserKeywords:X16}");
+
+                        traceSession.EnableProvider(
+                            collector.ProviderName,
+                            (TraceEventLevel)collector.UserTraceEventLevel,
+                            collector.UserKeywords);
+
+                        SilkUtility.WriteInfo(
+                            $"Collector {collector.CollectorGUID}: User provider enable succeeded");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    SilkUtility.WriteError(
+                        $"Collector {collector.CollectorGUID}: provider enable failed: {ex.Message}");
+                    return;
+                }
 
                 var instance = new CollectorInstance
                 {
@@ -122,7 +151,8 @@ namespace SilkETW
             }
 
             // Validated by SilkParameters — guard defensively.
-            if (collector.SystemProviderGuids == null || collector.SystemProviderGuids.Count == 0)
+            List<SystemProviderSettings> systemProviders = GetEffectiveSystemProviders(collector);
+            if (systemProviders == null || systemProviders.Count == 0)
             {
                 SilkUtility.WriteError(
                     $"Collector {collector.CollectorGUID}: SystemProvider has no provider GUIDs");
@@ -130,14 +160,16 @@ namespace SilkETW
             }
 
             bool   isWin11   = IsWindows11OrLater();
+            var    osVersion = GetWindowsVersion();
             string pathLabel = isWin11
                 ? "modern Windows 11+ path (EnableTraceEx2)"
                 : $"legacy fallback path (TraceSetInformation InformationClass={collector.InformationClass} EnableFlags=0x{collector.EnableFlags:X8})";
 
             SilkUtility.WriteInfo(
-                $"Collector {collector.CollectorGUID}: SystemProvider — {pathLabel}");
+                $"Collector {collector.CollectorGUID}: SystemProvider OS build " +
+                $"{osVersion.Major}.{osVersion.Minor}.{osVersion.Build} — {pathLabel}");
 
-            string sessionName  = "SilkETWSysProvider_" + Guid.NewGuid().ToString("N");
+            string sessionName  = SilkConstants.SystemProviderSessionName;
             ulong  nativeHandle = 0;
 
             // --- Start system-logger-mode session via native P/Invoke ---
@@ -154,23 +186,51 @@ namespace SilkETW
                     // Modern path: EnableTraceEx2 for every configured provider GUID.
                     // Ref: https://learn.microsoft.com/en-us/windows/win32/etw/system-providers
                     enabled = true;
-                    foreach (Guid providerGuid in collector.SystemProviderGuids)
+                    var enabledProviders = new List<Guid>();
+                    var failedProviders = new List<Guid>();
+
+                    foreach (SystemProviderSettings provider in systemProviders)
                     {
+                        ulong keywords = provider.UserKeywords.HasValue
+                            ? provider.UserKeywords.Value
+                            : collector.UserKeywords;
+
                         SilkUtility.WriteInfo(
                             $"Collector {collector.CollectorGUID}: " +
-                            $"EnableTraceEx2 guid={providerGuid} " +
+                            $"EnableTraceEx2 guid={provider.ProviderGuid} " +
                             $"level={(byte)collector.UserTraceEventLevel} " +
-                            $"keywords=0x{collector.UserKeywords:X16}");
+                            $"keywords=0x{keywords:X16}");
 
                         bool guidEnabled = EnableModernSystemObjectProvider(
                             nativeHandle,
-                            providerGuid,
+                            provider.ProviderGuid,
                             (byte)collector.UserTraceEventLevel,
-                            collector.UserKeywords,
+                            keywords,
                             collector.CollectorGUID);
 
                         if (!guidEnabled)
+                        {
+                            failedProviders.Add(provider.ProviderGuid);
                             enabled = false;   // log and continue; partial failure is reported
+                        }
+                        else
+                        {
+                            enabledProviders.Add(provider.ProviderGuid);
+                        }
+                    }
+
+                    if (enabledProviders.Count > 0)
+                    {
+                        SilkUtility.WriteInfo(
+                            $"Collector {collector.CollectorGUID}: enabled provider GUID(s): " +
+                            string.Join(", ", enabledProviders));
+                    }
+
+                    if (failedProviders.Count > 0)
+                    {
+                        SilkUtility.WriteError(
+                            $"Collector {collector.CollectorGUID}: failed provider GUID(s): " +
+                            string.Join(", ", failedProviders));
                     }
                 }
                 else
@@ -183,11 +243,52 @@ namespace SilkETW
                         $"TraceSetInformation InformationClass={collector.InformationClass} " +
                         $"EnableFlags=0x{collector.EnableFlags:X8}");
 
+                    bool hasPerProviderKeywordOverride = false;
+                    bool hasPerProviderEventFilters = false;
+                    foreach (SystemProviderSettings provider in systemProviders)
+                    {
+                        if (provider.UserKeywords.HasValue)
+                            hasPerProviderKeywordOverride = true;
+
+                        if ((provider.EventIdFilter != null && provider.EventIdFilter.Count > 0) ||
+                            (provider.OpcodeFilter != null && provider.OpcodeFilter.Count > 0) ||
+                            (provider.EventNameFilter != null && provider.EventNameFilter.Count > 0) ||
+                            (provider.EventNamePrefixFilter != null && provider.EventNamePrefixFilter.Count > 0))
+                        {
+                            hasPerProviderEventFilters = true;
+                        }
+                    }
+
+                    if (hasPerProviderKeywordOverride)
+                    {
+                        SilkUtility.WriteWarning(
+                            $"Collector {collector.CollectorGUID}: per-provider UserKeywords are ignored on legacy Win8/10 path; collector UserKeywords/EnableFlags are used instead");
+                    }
+
+                    if (hasPerProviderEventFilters)
+                    {
+                        SilkUtility.WriteWarning(
+                            $"Collector {collector.CollectorGUID}: per-provider EventName/Opcode/EventId filters are evaluated after event capture and do not change legacy provider enablement");
+                    }
+
                     enabled = EnableLegacySystemProviderFallback(
                         nativeHandle,
                         collector.EnableFlags,
                         collector.InformationClass,
                         collector.CollectorGUID);
+
+                    if (enabled)
+                    {
+                        SilkUtility.WriteInfo(
+                            $"Collector {collector.CollectorGUID}: legacy enable succeeded for configured provider GUID(s): " +
+                            string.Join(", ", collector.SystemProviderGuids));
+                    }
+                    else
+                    {
+                        SilkUtility.WriteError(
+                            $"Collector {collector.CollectorGUID}: legacy enable failed for configured provider GUID(s): " +
+                            string.Join(", ", collector.SystemProviderGuids));
+                    }
                 }
 
                 if (!enabled)
@@ -321,10 +422,20 @@ namespace SilkETW
 
             // Count every event received from ETW, regardless of filtering.
             Interlocked.Increment(ref SilkUtility.RunningEventCount);
+            SilkUtility.IncrementCollectorAccepted(collector.CollectorGUID);
 
             if (collector.EventIdFilter != null &&
+                collector.CollectorType != CollectorType.SystemProvider &&
                 !collector.EventIdFilter.Contains(resolvedEventId))
             {
+                SilkUtility.IncrementCollectorFilteredOut(collector.CollectorGUID);
+                return;
+            }
+
+            if (collector.CollectorType == CollectorType.SystemProvider &&
+                !ShouldIncludeSystemProviderEvent(data, resolvedEventId, collector))
+            {
+                SilkUtility.IncrementCollectorFilteredOut(collector.CollectorGUID);
                 return;
             }
 
@@ -335,12 +446,130 @@ namespace SilkETW
             {
                 SilkUtility.WriteError(
                     $"Collector {collector.CollectorGUID}: failed to enqueue event (writer stopped)");
+                SilkUtility.IncrementCollectorLost(collector.CollectorGUID);
                 onWriteFailed();
                 return;
             }
 
             // Count events that actually passed the filter and were written.
             Interlocked.Increment(ref SilkUtility.FilteredEventCount);
+            SilkUtility.IncrementCollectorWritten(collector.CollectorGUID);
+        }
+
+        private static List<SystemProviderSettings> GetEffectiveSystemProviders(CollectorParameters collector)
+        {
+            if (collector.SystemProviders != null && collector.SystemProviders.Count > 0)
+                return collector.SystemProviders;
+
+            if (collector.SystemProviderGuids == null || collector.SystemProviderGuids.Count == 0)
+                return null;
+
+            var providers = new List<SystemProviderSettings>();
+            foreach (Guid guid in collector.SystemProviderGuids)
+            {
+                providers.Add(new SystemProviderSettings
+                {
+                    ProviderGuid = guid
+                });
+            }
+
+            return providers;
+        }
+
+        private static bool ShouldIncludeSystemProviderEvent(
+            TraceEvent data,
+            int resolvedEventId,
+            CollectorParameters collector)
+        {
+            List<SystemProviderSettings> providers = GetEffectiveSystemProviders(collector);
+            if (providers == null || providers.Count == 0)
+                return true;
+
+            bool hasProviderLevelFilters = false;
+            foreach (SystemProviderSettings provider in providers)
+            {
+                if (HasProviderLevelFilters(provider))
+                {
+                    hasProviderLevelFilters = true;
+                    break;
+                }
+            }
+
+            if (hasProviderLevelFilters)
+            {
+                foreach (SystemProviderSettings provider in providers)
+                {
+                    if (!HasProviderLevelFilters(provider))
+                        continue;
+
+                    if (MatchesProviderLevelFilters(provider, data, resolvedEventId))
+                        return true;
+                }
+
+                return false;
+            }
+
+            if (collector.EventIdFilter != null)
+                return collector.EventIdFilter.Contains(resolvedEventId);
+
+            return true;
+        }
+
+        private static bool HasProviderLevelFilters(SystemProviderSettings provider)
+        {
+            return (provider.EventIdFilter != null && provider.EventIdFilter.Count > 0) ||
+                   (provider.OpcodeFilter != null && provider.OpcodeFilter.Count > 0) ||
+                   (provider.EventNameFilter != null && provider.EventNameFilter.Count > 0) ||
+                   (provider.EventNamePrefixFilter != null && provider.EventNamePrefixFilter.Count > 0);
+        }
+
+        private static bool MatchesProviderLevelFilters(
+            SystemProviderSettings provider,
+            TraceEvent data,
+            int resolvedEventId)
+        {
+            if (provider.EventIdFilter != null &&
+                provider.EventIdFilter.Count > 0 &&
+                !provider.EventIdFilter.Contains(resolvedEventId))
+            {
+                return false;
+            }
+
+            int opcode = (int)data.Opcode;
+            if (provider.OpcodeFilter != null &&
+                provider.OpcodeFilter.Count > 0 &&
+                !provider.OpcodeFilter.Contains(opcode))
+            {
+                return false;
+            }
+
+            if (provider.EventNameFilter != null &&
+                provider.EventNameFilter.Count > 0)
+            {
+                string eventName = data.EventName ?? string.Empty;
+                if (!provider.EventNameFilter.Contains(eventName))
+                    return false;
+            }
+
+            if (provider.EventNamePrefixFilter != null &&
+                provider.EventNamePrefixFilter.Count > 0)
+            {
+                string eventName = data.EventName ?? string.Empty;
+                bool prefixMatched = false;
+                foreach (string prefix in provider.EventNamePrefixFilter)
+                {
+                    if (eventName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        prefixMatched = true;
+                        break;
+                    }
+                }
+
+                if (!prefixMatched)
+                    return false;
+            }
+
+            return true;
         }
 
         // =====================================================================
@@ -574,6 +803,53 @@ namespace SilkETW
                 SilkUtility.WriteWarning(
                     $"Collector {collectorGuid}: " +
                     $"exception stopping native session: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Stops a native ETW session by <paramref name="sessionName"/> alone (handle = 0).
+        /// Used by the startup purge to clean up sessions from previous forcibly-killed runs.
+        /// ControlTraceW accepts handle=0 and a non-null session name to locate the session.
+        /// </summary>
+        internal static void StopSessionByName(string sessionName)
+        {
+            if (string.IsNullOrEmpty(sessionName))
+                return;
+
+            try
+            {
+                int    propSize  = Marshal.SizeOf(typeof(EVENT_TRACE_PROPERTIES));
+                int    nameBytes = (sessionName.Length + 1) * sizeof(char);
+                int    totalSize = propSize + nameBytes;
+                IntPtr buffer    = Marshal.AllocHGlobal(totalSize);
+                try
+                {
+                    ZeroBuffer(buffer, totalSize);
+
+                    var props = new EVENT_TRACE_PROPERTIES();
+                    props.Wnode.BufferSize = (uint)totalSize;
+                    props.Wnode.Flags      = WNODE_FLAG_TRACED_GUID;
+                    props.LoggerNameOffset = (uint)propSize;
+                    Marshal.StructureToPtr(props, buffer, false);
+
+                    // Pass handle=0 and non-null session name: ControlTraceW locates by name.
+                    uint status = ControlTraceW(0, sessionName, buffer, EVENT_TRACE_CONTROL_STOP);
+
+                    if (status == 0 || status == 4201 /* ERROR_WMI_INSTANCE_NOT_FOUND: already gone */)
+                        SilkUtility.WriteInfo($"Startup purge: session \"{sessionName}\" stopped");
+                    else
+                        SilkUtility.WriteWarning(
+                            $"Startup purge: ControlTraceW(\"{sessionName}\") returned 0x{status:X8}");
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(buffer);
+                }
+            }
+            catch (Exception ex)
+            {
+                SilkUtility.WriteWarning(
+                    $"Startup purge: exception stopping \"{sessionName}\": {ex.Message}");
             }
         }
 

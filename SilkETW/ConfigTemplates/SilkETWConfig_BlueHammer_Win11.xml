@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SilkETWConfig>
+
+  <!--
+    BlueHammer Windows 11 profile.
+
+    Goal:
+      - Keep Object Manager handle lifecycle events from System Object Provider.
+      - Keep key Kernel FileIo events needed for file/symlink correlation.
+      - Run both collectors together into one NDJSON file.
+
+    Notes:
+      - On Windows 11+ the SystemProvider collector uses EnableTraceEx2.
+      - On Windows 8/10 legacy fallback uses TraceSetInformation.
+      - EventId values are shared across classes in MSNT_SystemTrace;
+        correlate with EventName/OpcodeName, not EventId alone.
+  -->
+
+  <OutputPath>./Logs/object_file_symlink_BlueHammer_Win11.ndjson</OutputPath>
+
+  <!--
+    Kernel collector (File I/O + path/symlink signals).
+
+    100665088 =
+      EVENT_TRACE_FLAG_FILE_IO      (0x02000000)
+    + EVENT_TRACE_FLAG_FILE_IO_INIT (0x04000000)
+    + EVENT_TRACE_FLAG_DISK_FILE_IO (0x00000200)
+    + EVENT_TRACE_FLAG_DISK_IO_INIT (0x00000400)
+    + EVENT_TRACE_FLAG_DISK_IO      (0x00000100)
+
+    EventIdFilter focus:
+      64 = FileIo/Create
+      69 = FileIo/SetInfo
+      71 = FileIo/Rename
+      75 = FileIo/FSControl
+      79 = FileIo/DeletePath
+      80 = FileIo/RenamePath
+      81 = FileIo/SetLinkPath (important for symlink tracking)
+  -->
+  <ETWCollector>
+    <Guid>f9beff90-c9ad-4f39-b4fc-49be905f8d35</Guid>
+    <CollectorType>Kernel</CollectorType>
+    <KernelKeywords>100665088</KernelKeywords>
+    <EventIdFilter>64,69,71,75,79,80,81</EventIdFilter>
+  </ETWCollector>
+
+  <!--
+    Object Manager collector (System Object Provider).
+
+    Also enables System Process and System Lock providers in the same collector.
+    Each provider can now specify its own UserKeywords and event filters.
+
+    Win11+:
+      Per-provider UserKeywords are applied via EnableTraceEx2.
+
+    Legacy fallback:
+      EnableFlags 0x80000040 = PERF_OB_HANDLE.
+      InformationClass 4 = TraceSystemTraceEnableFlagsInfo.
+      Per-provider UserKeywords are ignored on legacy path.
+  -->
+  <ETWCollector>
+    <Guid>52f35daf-169f-4bbc-b3c3-654ee6150418</Guid>
+    <CollectorType>SystemProvider</CollectorType>
+    <SystemProviderGuids>
+      <!-- System Object Provider: focus on handle lifecycle stream -->
+      <Provider>
+        <Guid>febd7460-3d1d-47eb-af49-c9eeb1e146f2</Guid>
+        <UserKeywords>0xffffffffffffffff</UserKeywords>
+      </Provider>
+
+      <!-- System Process Provider: process/thread/image lifetime -->
+      <Provider>
+        <Guid>151f55dc-467d-471f-83b5-5f889d46ff66</Guid>
+        <UserKeywords>0xffffffffffffffff</UserKeywords>
+      </Provider>
+
+      <!-- System Lock Provider: lock and spinlock categories -->
+      <Provider>
+        <Guid>721ddfd3-dacc-4e1e-b26a-a2cb31d4705a</Guid>
+        <UserKeywords>0xffffffffffffffff</UserKeywords>
+      </Provider>
+
+      <!-- System IO Provider -->
+      <Provider>
+        <Guid>3d5c43e3-0f1c-4202-b817-174c0070dc79</Guid>
+        <UserKeywords>0xffffffffffffffff</UserKeywords>
+      </Provider>
+
+      <!-- System IO Filter Provider -->
+      <Provider>
+        <Guid>fbd09363-9e22-4661-b8bf-e7a34b535b8c</Guid>
+        <UserKeywords>0xffffffffffffffff</UserKeywords>
+      </Provider>
+
+    </SystemProviderGuids>
+	<!-- 
+  <EnableFlags>0x80000040</EnableFlags>	
+	<EnableFlags>0x96000741</EnableFlags>
+  -->
+  <EnableFlags>0x86008F42</EnableFlags>
+	<InformationClass>4</InformationClass>
+  <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+  <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+</SilkETWConfig>

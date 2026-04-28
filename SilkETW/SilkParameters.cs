@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security.AccessControl;
+using System.Text;
 using System.Xml.Linq;
 
 namespace SilkETW
@@ -58,6 +59,7 @@ namespace SilkETW
             XName xEventIdFilter    = XName.Get("EventIdFilter");
             XName xSysProvGuids     = XName.Get("SystemProviderGuids");
             XName xSysProvGuid      = XName.Get("ProviderGuid");
+            XName xSysProvEntry     = XName.Get("Provider");
             XName xEnableFlags      = XName.Get("EnableFlags");
             XName xInformationClass = XName.Get("InformationClass");
 
@@ -105,9 +107,16 @@ namespace SilkETW
                     // EventIdFilter (optional): comma-separated integers
                     cp.EventIdFilter = ParseEventIdFilter(collectorEl, xEventIdFilter, cp.CollectorGUID);
 
-                    // SystemProviderGuids (optional): list of <ProviderGuid> child elements
-                    cp.SystemProviderGuids = ParseSystemProviderGuids(
-                        collectorEl, xSysProvGuids, xSysProvGuid, cp.CollectorGUID);
+                    // SystemProviders (optional): list of entries with per-provider settings.
+                    // Backward compatibility: supports legacy <ProviderGuid> list as well.
+                    cp.SystemProviders = ParseSystemProviders(
+                        collectorEl,
+                        xSysProvGuids,
+                        xSysProvEntry,
+                        xSysProvGuid,
+                        cp.CollectorGUID);
+
+                    cp.SystemProviderGuids = FlattenProviderGuidList(cp.SystemProviders);
 
                     // EnableFlags (optional, hex or decimal): bitmask for TraceSetInformation legacy path
                     cp.EnableFlags = ParseElement(collectorEl, xEnableFlags, out string efVal)
@@ -238,6 +247,59 @@ namespace SilkETW
                         return false;
                     }
 
+                    if (c.SystemProviders != null)
+                    {
+                        var seenProviders = new HashSet<Guid>();
+                        for (int p = 0; p < c.SystemProviders.Count; p++)
+                        {
+                            SystemProviderSettings provider = c.SystemProviders[p];
+
+                            if (!seenProviders.Add(provider.ProviderGuid))
+                            {
+                                SilkUtility.WriteWarning(
+                                    $"Collector {c.CollectorGUID}: duplicate SystemProvider GUID {provider.ProviderGuid} found; last entry will still be processed");
+                            }
+
+                            if (provider.UserKeywords.HasValue && provider.UserKeywords.Value == 0)
+                            {
+                                SilkUtility.WriteWarning(
+                                    $"Collector {c.CollectorGUID}: provider {provider.ProviderGuid} has UserKeywords=0; that provider may not emit events");
+                            }
+
+                            if (provider.EventIdFilter != null && provider.EventIdFilter.Count == 0)
+                            {
+                                SilkUtility.WriteWarning(
+                                    $"Collector {c.CollectorGUID}: provider {provider.ProviderGuid} has empty EventIdFilter; disabling that provider EventId filter");
+                                provider.EventIdFilter = null;
+                            }
+
+                            if (provider.OpcodeFilter != null && provider.OpcodeFilter.Count == 0)
+                            {
+                                SilkUtility.WriteWarning(
+                                    $"Collector {c.CollectorGUID}: provider {provider.ProviderGuid} has empty OpcodeFilter; disabling that provider Opcode filter");
+                                provider.OpcodeFilter = null;
+                            }
+
+                            if (provider.EventNameFilter != null && provider.EventNameFilter.Count == 0)
+                            {
+                                SilkUtility.WriteWarning(
+                                    $"Collector {c.CollectorGUID}: provider {provider.ProviderGuid} has empty EventNameFilter; disabling that provider EventName filter");
+                                provider.EventNameFilter = null;
+                            }
+
+                            if (provider.EventNamePrefixFilter != null && provider.EventNamePrefixFilter.Count == 0)
+                            {
+                                SilkUtility.WriteWarning(
+                                    $"Collector {c.CollectorGUID}: provider {provider.ProviderGuid} has empty EventNamePrefixFilter; disabling that provider EventName prefix filter");
+                                provider.EventNamePrefixFilter = null;
+                            }
+
+                            c.SystemProviders[p] = provider;
+                        }
+
+                        collectors[i] = c;
+                    }
+
                     if (c.EnableFlags == 0)
                     {
                         SilkUtility.WriteWarning(
@@ -249,11 +311,27 @@ namespace SilkETW
                     // Inform the operator which ETW path will be used at runtime.
                     // (Actual version check runs in ETWCollector; we don't fail here
                     //  because the legacy fallback covers Windows 8-10.)
-                    SilkUtility.WriteInfo(
+                    var summary = new StringBuilder();
+                    summary.Append(
                         $"Collector {c.CollectorGUID}: SystemProvider — " +
                         $"{c.SystemProviderGuids.Count} provider GUID(s), " +
                         $"EnableFlags=0x{c.EnableFlags:X8}, InformationClass={c.InformationClass}. " +
                         "Win11+: EnableTraceEx2; Win8/10: TraceSetInformation.");
+
+                    if (c.SystemProviders != null)
+                    {
+                        foreach (SystemProviderSettings provider in c.SystemProviders)
+                        {
+                            string keywordLabel = provider.UserKeywords.HasValue
+                                ? $"0x{provider.UserKeywords.Value:X16}"
+                                : "inherit collector UserKeywords";
+
+                            summary.Append(
+                                $" Provider {provider.ProviderGuid}: keywords={keywordLabel}");
+                        }
+                    }
+
+                    SilkUtility.WriteInfo(summary.ToString());
                 }
 
                 // Auto-generate GUID if empty
@@ -320,13 +398,15 @@ namespace SilkETW
         }
 
         /// <summary>
-        /// Parses &lt;SystemProviderGuids&gt;&lt;ProviderGuid&gt;...&lt;/ProviderGuid&gt;&lt;/SystemProviderGuids&gt;.
-        /// Returns null when the container element is absent.
-        /// Returns an empty list when the container is present but has no valid GUIDs.
+        /// Parses per-provider SystemProvider configuration.
+        /// Supports both new and legacy formats:
+        /// - New: &lt;SystemProviderGuids&gt;&lt;Provider&gt;...&lt;/Provider&gt;&lt;/SystemProviderGuids&gt;
+        /// - Legacy: &lt;SystemProviderGuids&gt;&lt;ProviderGuid&gt;...&lt;/ProviderGuid&gt;&lt;/SystemProviderGuids&gt;
         /// </summary>
-        private static List<Guid> ParseSystemProviderGuids(
+        private static List<SystemProviderSettings> ParseSystemProviders(
             XElement parent,
             XName    containerName,
+            XName    entryName,
             XName    itemName,
             Guid     collectorGuid)
         {
@@ -334,7 +414,9 @@ namespace SilkETW
             if (container == null)
                 return null;
 
-            var guids = new List<Guid>();
+            var providers = new List<SystemProviderSettings>();
+
+            // Legacy format: direct ProviderGuid entries.
             foreach (XElement el in container.Elements(itemName))
             {
                 string raw = el.Value?.Trim();
@@ -342,14 +424,134 @@ namespace SilkETW
                     continue;
 
                 if (Guid.TryParse(raw, out Guid g))
-                    guids.Add(g);
+                {
+                    providers.Add(new SystemProviderSettings
+                    {
+                        ProviderGuid = g
+                    });
+                }
                 else
                     SilkUtility.WriteWarning(
                         $"Collector {collectorGuid}: SystemProviderGuids — " +
                         $"\"{ raw}\" is not a valid GUID and will be ignored");
             }
 
-            return guids;
+            // New format: Provider entries with per-provider settings.
+            foreach (XElement entry in container.Elements(entryName))
+            {
+                string guidText = null;
+
+                if (!TryGetTrimmedValue(entry, XName.Get("Guid"), out guidText) &&
+                    !TryGetTrimmedValue(entry, XName.Get("ProviderGuid"), out guidText))
+                {
+                    XAttribute guidAttr = entry.Attribute(XName.Get("Guid"));
+                    if (guidAttr != null)
+                        guidText = guidAttr.Value?.Trim();
+                }
+
+                if (string.IsNullOrWhiteSpace(guidText) ||
+                    !Guid.TryParse(guidText, out Guid providerGuid))
+                {
+                    SilkUtility.WriteWarning(
+                        $"Collector {collectorGuid}: SystemProvider entry without valid Guid/ProviderGuid was ignored");
+                    continue;
+                }
+
+                var setting = new SystemProviderSettings
+                {
+                    ProviderGuid = providerGuid
+                };
+
+                if (TryGetTrimmedValue(entry, XName.Get("UserKeywords"), out string userKeywordsText))
+                    setting.UserKeywords = ParseUlongKeywords(userKeywordsText);
+
+                setting.EventIdFilter = ParseIntCsvElement(entry, XName.Get("EventIdFilter"), collectorGuid, "SystemProvider EventIdFilter");
+                setting.OpcodeFilter = ParseIntCsvElement(entry, XName.Get("OpcodeFilter"), collectorGuid, "SystemProvider OpcodeFilter");
+                setting.EventNameFilter = ParseStringCsvElement(entry, XName.Get("EventNameFilter"));
+                setting.EventNamePrefixFilter = ParseStringCsvElement(entry, XName.Get("EventNamePrefixFilter"));
+
+                providers.Add(setting);
+            }
+
+            return providers;
+        }
+
+        private static List<Guid> FlattenProviderGuidList(List<SystemProviderSettings> providers)
+        {
+            if (providers == null)
+                return null;
+
+            var result = new List<Guid>();
+            var seen = new HashSet<Guid>();
+            foreach (SystemProviderSettings provider in providers)
+            {
+                if (provider.ProviderGuid == Guid.Empty)
+                    continue;
+
+                if (seen.Add(provider.ProviderGuid))
+                    result.Add(provider.ProviderGuid);
+            }
+
+            return result;
+        }
+
+        private static HashSet<int> ParseIntCsvElement(
+            XElement parent,
+            XName elementName,
+            Guid collectorGuid,
+            string contextLabel)
+        {
+            if (!TryGetTrimmedValue(parent, elementName, out string value) ||
+                string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            var result = new HashSet<int>();
+            foreach (string token in value.Split(','))
+            {
+                string trimmed = token.Trim();
+                if (string.IsNullOrEmpty(trimmed))
+                    continue;
+
+                if (int.TryParse(trimmed, out int parsed))
+                    result.Add(parsed);
+                else
+                    SilkUtility.WriteWarning(
+                        $"Collector {collectorGuid}: {contextLabel} token \"{trimmed}\" is not a valid integer and will be ignored");
+            }
+
+            return result;
+        }
+
+        private static HashSet<string> ParseStringCsvElement(XElement parent, XName elementName)
+        {
+            if (!TryGetTrimmedValue(parent, elementName, out string value) ||
+                string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string token in value.Split(','))
+            {
+                string trimmed = token.Trim();
+                if (!string.IsNullOrEmpty(trimmed))
+                    result.Add(trimmed);
+            }
+
+            return result;
+        }
+
+        private static bool TryGetTrimmedValue(XElement parent, XName name, out string value)
+        {
+            value = null;
+            XElement el = parent.Element(name);
+            if (el == null)
+                return false;
+
+            value = el.Value?.Trim();
+            return !string.IsNullOrWhiteSpace(value);
         }
 
         /// <summary>

@@ -429,6 +429,7 @@
     <Content Include="ConfigTemplates\SilkETWConfig_BlueHammer.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="ConfigTemplates\SilkETWConfig_BlueHammer_Win11.xml" />
     <Content Include="ConfigTemplates\SilkETWConfig_Certificates.xml" />
     <Content Include="ConfigTemplates\SilkETWConfig_IIS.xml" />
     <Content Include="ConfigTemplates\SilkETWConfig_ObjectManager.xml" />
