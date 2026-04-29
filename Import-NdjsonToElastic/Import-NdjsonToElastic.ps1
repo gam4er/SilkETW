@@ -743,7 +743,7 @@ function Get-KibanaDataViews {
     $result = Invoke-KibanaRequest -Method 'GET' -Path 'data_views'
 
     try {
-        $json = $result.Body | ConvertFrom-Json -ErrorAction Stop
+        $json = $result.Body | ConvertFrom-Json -AsHashtable -ErrorAction Stop
     }
     catch {
         throw "Cannot parse Kibana Data Views response. $($_.Exception.Message)"
@@ -790,7 +790,7 @@ function ConvertFrom-KibanaDataViewResponse {
     param([Parameter(Mandatory = $true)][string]$ResponseBody)
 
     try {
-        $json = $ResponseBody | ConvertFrom-Json -ErrorAction Stop
+        $json = $ResponseBody | ConvertFrom-Json -AsHashtable -ErrorAction Stop
     }
     catch {
         throw "Cannot parse Kibana Data View response. $($_.Exception.Message)"

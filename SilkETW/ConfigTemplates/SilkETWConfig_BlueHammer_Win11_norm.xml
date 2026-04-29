@@ -27,6 +27,8 @@
     + EVENT_TRACE_FLAG_DISK_FILE_IO (0x00000200)
     + EVENT_TRACE_FLAG_DISK_IO_INIT (0x00000400)
     + EVENT_TRACE_FLAG_DISK_IO      (0x00000100)
+    = 100665089
+    + EVENT_TRACE_FLAG_PROCESS (0x00000001)
 
     EventIdFilter focus (classic MSNT_SystemTrace events):
       64 = FileIo/Create
@@ -46,7 +48,10 @@
     <Guid>f9beff90-c9ad-4f39-b4fc-49be905f8d35</Guid>
     <CollectorType>Kernel</CollectorType>
     <KernelKeywords>100665088</KernelKeywords>
+    <!-- EventIdFilter values are shared across classes in MSNT_SystemTrace; correlate with EventName/OpcodeName, not EventId alone. 
     <EventIdFilter>0,32,64,66,67,68,69,71,74,75,76,79,80,81</EventIdFilter>
+    -->
+    <EventIdFilter>0,1,2,3,4,32,33,35,36,37,38,39,40,48,49,50,51,64,69,70,71,74,75,79,80,81</EventIdFilter>
     <!-- <EnableStackTracing>true</EnableStackTracing> -->
   </ETWCollector>
 
@@ -111,7 +116,6 @@
       <Provider>
         <Guid>febd7460-3d1d-47eb-af49-c9eeb1e146f2</Guid>
         <UserKeywords>0x1</UserKeywords>
-        <OpcodeFilter>32,33,34,38,39</OpcodeFilter>
       </Provider>
 
       <!-- System Process Provider: process/thread/image lifetime -->

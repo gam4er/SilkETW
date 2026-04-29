@@ -10,3 +10,5 @@
 *.csv
 /Import-NdjsonToElastic/_bulk_import_*
 *.ndjson
+
+.fake
