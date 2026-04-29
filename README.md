@@ -1,276 +1,338 @@
-# SilkETW & SilkService
+﻿# SilkETW — форк с поддержкой System Providers и экспортом в Elasticsearch
 
-SilkETW & SilkService are flexible C# wrappers for ETW, they are meant to abstract away the complexities of ETW and give people a simple interface to perform research and introspection. While both projects have obvious defensive (and offensive) applications they should primarily be considered as research tools.
+> English version below / [Jump to English](#silketw--fork-with-system-provider-support-and-elasticsearch-export)
 
-For easy consumption, output data is serialized to JSON. The JSON data can either be written to file and analyzed locally using PowerShell, stored in the Windows eventlog or shipped off to 3rd party infrastructure such as [Elasticsearch](https://www.elastic.co/).
+---
 
-For more information on the future of SilkETW & SilkService, see the [Roadmap](#roadmap) section.
+Это переписанный форк оригинального [SilkETW](https://github.com/fireeye/SilkETW) (FuzzySecurity / Mandiant). Основное добавление — поддержка **System Providers** (ETW через `EnableTraceEx2`), единый NDJSON-вывод и готовый скрипт импорта в Elasticsearch / Kibana. Всё остальное — Kernel и ManifestBased (User) — работает как раньше.
 
-## Media
+---
 
-For more background on SilkETW and SilkService please consult the following resources.
+## Провайдеры ETW: три типа
 
-* SilkETW: Because Free Telemetry is … Free! - [here](https://www.fireeye.com/blog/threat-research/2019/03/silketw-because-free-telemetry-is-free.html)
-* SilkETW & SilkService BlackHat Arsenal 2019 - [here](https://github.com/FuzzySecurity/BH-Arsenal-2019)
-* Threat Hunting with ETW events and HELK — Part 1: Installing SilkETW (by [@Cyb3rWard0g](https://twitter.com/Cyb3rWard0g)) - [here](https://medium.com/threat-hunters-forge/threat-hunting-with-etw-events-and-helk-part-1-installing-silketw-6eb74815e4a0)
-* Threat Hunting with ETW events and HELK — Part 2: Shipping ETW events to HELK (by [@Cyb3rWard0g](https://twitter.com/Cyb3rWard0g)) - [here](https://medium.com/threat-hunters-forge/threat-hunting-with-etw-events-and-helk-part-2-shipping-etw-events-to-helk-16837116d2f5)
-* Events from all manifest-based and mof-based ETW providers across Windows 10 versions (by [@jdu2600](https://twitter.com/jdu2600)) - [here](https://github.com/jdu2600/Windows10EtwEvents)
-* Hunting for Suspicious LDAP Activity with SilkETW and Yara - [here](https://riccardoancarani.github.io/2019-10-19-hunting-for-domain-enumeration/)
+### Kernel Provider (`CollectorType: Kernel`)
 
-## Implementation Details
+Классический механизм ядра: сессия `NT Kernel Logger` (`MSNT_SystemTrace`). Управляется через числовые флаги (`KernelKeywords`). Покрывает файловые I/O (`FileIo/Create`, `FileIo/FSControl`, `FileIo/RenamePath`…), создание процессов, образов, потоков. Широкий охват, низкая стоимость.
 
-### Libraries
+**Важно:** `EventId` в этой сессии не уникален на класс события — один номер покрывает несколько типов. При анализе коррелируй по `EventName` + `OpcodeName`, не по `EventId` в одиночку.
 
-SilkETW is buit on .Net v4.5 and uses a number of 3rd party libraries, as shown below. Please see [LICENSE-3RD-PARTY](LICENSE-3RD-PARTY.txt) for further details.
+### ManifestBased / User Provider (`CollectorType: User`)
 
-```
-ModuleId                                 Version LicenseUrl                                                   
---------                                 ------- ----------                                                   
-McMaster.Extensions.CommandLineUtils     2.3.2   https://licenses.nuget.org/Apache-2.0                        
-Microsoft.Diagnostics.Tracing.TraceEvent 2.0.36  https://github.com/Microsoft/perfview/blob/master/LICENSE.TXT
-Newtonsoft.Json                          12.0.1  https://licenses.nuget.org/MIT                               
-System.ValueTuple                        4.4.0   https://github.com/dotnet/corefx/blob/master/LICENSE.TXT     
-YaraSharp                                1.3.1   https://github.com/stellarbear/YaraSharp/blob/master/LICENSE
-```
+Манифестный ETW: провайдер задаётся GUID или именем (например, `Microsoft-Windows-Kernel-File`). Каждый провайдер публикует xml-манифест с описанием всех событий. Структурированный payload, нет проблем с `EventId`, декодируется без символов. Удобен там, где важен точный путь (`FilePath`-поле), теги, версии событий.
 
-## SilkETW
+### System Provider (`CollectorType: SystemProvider`)
 
-### Command Line Options
+Новый тип в этом форке. Использует `EnableTraceEx2` для добавления провайдеров к уже запущенной системной сессии (`NT Kernel Logger`). Открывает доступ к событиям, которых нет ни в классическом Kernel-пути, ни в манифестных провайдерах: **жизненный цикл объектов Object Manager** (открытие/закрытие дескрипторов, создание имён), процессы, блокировки, I/O-фильтры.
 
-Command line usage is fairly straight forward and user input is validated in the execution prologue. See the image below for further details.
+На Windows 11+ используется современный путь через `EnableTraceEx2`; на Windows 8/10 — legacy fallback через `TraceSetInformation`. Это описано в [`SilkETW/task_for_agent_windows11_system_object_provider_with_legacy_fallback.md`](SilkETW/task_for_agent_windows11_system_object_provider_with_legacy_fallback.md).
 
-![Help](Images/help.png)
+---
 
-## SilkService
+## Цель: NDJSON, готовый к импорту в Elastic
 
-### Caveat
+Все коллекторы пишут события в единый NDJSON-файл (одно событие — одна строка JSON). Формат подходит для прямого импорта в Elasticsearch: каждая строка содержит `@timestamp`, `ProcessName`, `ProviderName`, `EventName`, `ThreadID`, `XmlEventData.*` и прочие поля, которые Kibana сразу индексирует.
 
-SilkService was created because a large number of people wanted to run SilkETW headless and perform ETW collection for multiple sources at the same time. While there is obvious appeal to this, the following points should be kept in mind.
+Несколько коллекторов (Kernel + ManifestBased + SystemProvider) можно запустить одновременно и указать один `<OutputPath>` — они пишут в один файл через потокобезопасный writer.
 
-* SilkETW & SilkService were created by a one-man engineering army, ([@FuzzySec](https://twitter.com/fuzzysec)), they are not backed by a department of developers and as such may contain bugs. If you do encounter bugs or see ways to improve these projects you are strongly encouraged to file tickets and/or submit pull requests.
-* ETW collection can be resource intensive. Do not roll out SilkService across a wide range of hosts without thorough performance testing. Ensure that the configuration can run stably on your least powerful machines.
+---
 
-### Setup
+## Конфигурация
 
-After compiling or downloading the release package you can install the service by issuing the following command from an elevated prompt.
-
-```
-sc create SillkService binPath= "C:\Path\To\SilkService.exe" start= demand
-```
-
-### Configuration
-
-SilkService ingests an XML configuration file, "SilkServiceConfig.xml", which should be placed in the same directory as the service binary. An example configuration file can be seen below.
+Коллекторы задаются XML-файлом. Пример — профиль для BlueHammer на Windows 11:
 
 ```xml
-<SilkServiceConfig>
-	<!--
-		This is a user collector
-		-> Microsoft-Windows-DotNETRuntime
-		-> GUID or string based name
-	-->
-	<ETWCollector>
-		<Guid>45c82358-c52d-4892-8237-ba001d396fb4</Guid>
-		<CollectorType>user</CollectorType>
-		<ProviderName>e13c0d23-ccbc-4e12-931b-d9cc2eee27e4</ProviderName>
-		<UserKeywords>0x2038</UserKeywords>
-		<OutputType>url</OutputType>
-		<Path>https://some.elk:9200/NetETW/_doc/</Path>
-	</ETWCollector>
-	<!--
-		This is a user collector
-	-->
-	<ETWCollector>
-		<Guid>6720babc-dedc-4906-86b9-d0bc0089ec50</Guid>
-		<CollectorType>user</CollectorType>
-		<ProviderName>Microsoft-Windows-DNS-Client</ProviderName>
-		<OutputType>eventlog</OutputType>
-		<YaraScan>C:\Some\Path\RuleFolder</YaraScan>
-		<YaraOptions>Matches</YaraOptions>
-	</ETWCollector>
-	<!--
-		This is a kernel collector
-	-->
-	<ETWCollector>
-		<Guid>21ac2393-3bbb-4702-a01c-b593e21913dc</Guid>
-		<CollectorType>kernel</CollectorType>
-		<KernelKeywords>Process</KernelKeywords>
-		<OutputType>file</OutputType>
-		<Path>C:\Users\b33f\Desktop\kproc.json</Path>
-	</ETWCollector>
-</SilkServiceConfig>
+<SilkETWConfig>
+  <OutputPath>./Logs/object_file_symlink_BlueHammer_Win11.ndjson</OutputPath>
+
+  <!-- Kernel: File I/O -->
+  <ETWCollector>
+    <Guid>f9beff90-c9ad-4f39-b4fc-49be905f8d35</Guid>
+    <CollectorType>Kernel</CollectorType>
+    <KernelKeywords>100665088</KernelKeywords>
+    <EventIdFilter>64,69,71,75,79,80,81</EventIdFilter>
+  </ETWCollector>
+
+  <!-- ManifestBased: Microsoft-Windows-Kernel-File -->
+  <ETWCollector>
+    <Guid>abe9f2f4-c9a2-4a03-a9d5-8f1f63e64ac5</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-Kernel-File</ProviderName>
+    <UserKeywords>4503599644147711</UserKeywords>
+  </ETWCollector>
+
+  <!-- System Provider: Object Manager handle lifecycle -->
+  <ETWCollector>
+    <Guid>a9d2e96b-1c3c-4c2a-b8c7-0e5f3d1a7b22</Guid>
+    <CollectorType>SystemProvider</CollectorType>
+    <SystemProviderGuids>
+      <ProviderGuid>{9B79EE91-B5FD-41C0-A243-4248B4B4CF09}</ProviderGuid>
+    </SystemProviderGuids>
+  </ETWCollector>
+</SilkETWConfig>
 ```
 
-Note that each ETWCollector element should have a random GUID, this is used for internal tracking and logging purposes. You can generate GUID's in PowerShell using the following command:
+Готовые профили лежат в [`SilkETW/ConfigTemplates/`](SilkETW/ConfigTemplates/):
+
+| Файл | Назначение |
+| --- | --- |
+| `SilkETWConfig_BlueHammer_Win11.xml` | BlueHammer: File I/O + Object Manager, Windows 11 |
+| `SilkETWConfig_BlueHammer_Win11_noflt.xml` | то же, без IO Filter Provider |
+| `SilkETWConfig_BlueHammer.xml` | BlueHammer на старых Windows |
+| `SilkETWConfig_ObjectManager.xml` | только Object Manager |
+| `SilkETWConfig_Shadowcopy.xml` | VSS / shadow copy события |
+| `SilkETWConfig_Certificates.xml` | события сертификатов |
+| `SilkETWConfig_IIS.xml` | IIS |
+| `SilkETWConfig_Office.xml` | Office |
+
+---
+
+## Запуск
+
+```
+SilkETW.exe -c SilkETW\ConfigTemplates\SilkETWConfig_BlueHammer_Win11.xml
+```
+
+Требует прав администратора. Запись идёт в файл, указанный в `<OutputPath>`.
+
+---
+
+## Импорт в Elasticsearch
+
+После сбора данных готовый NDJSON можно отправить в локальный Elasticsearch одной командой:
 
 ```powershell
-PS C:\> [guid]::NewGuid()
-
-Guid
-----
-eee52b87-3f32-4651-b0c3-e7bb9af334aa
+./Import-NdjsonToElastic/Import-NdjsonToElastic.ps1 `
+    -NdjsonPath .\Logs\object_file_symlink_BlueHammer_Win11.ndjson `
+    -IndexName bluehammer `
+    -Recreate
 ```
 
-### Auditing
+Скрипт [`Import-NdjsonToElastic/Import-NdjsonToElastic.ps1`](Import-NdjsonToElastic/Import-NdjsonToElastic.ps1):
+- нормализует кодировку к UTF-8;
+- конвертирует NDJSON в Elasticsearch bulk-формат через `jq`;
+- создаёт индекс с правильными маппингами (`@timestamp` как `date`, числа как `long`);
+- заливает данные пачками (`--DocsPerBulk`, по умолчанию 5000);
+- создаёт или обновляет Kibana Data View.
 
-At runtime SilkService will create a "Logs" subfolder to record service runtime information. This is an invaluable resource to poll the service state, verify service parameter validation and review error information. SilkService has a preference to shut down gracefully if it encounters any type of error, even if such an error does not strictly require termination. This design decision was made purposely as it is not a sound strategy to have dangling collectors or partial operability.
+Требования: PowerShell 7+, `jq` в PATH, локальный Elasticsearch.
 
-**Always consult the service log if the service shuts itself down!**
+---
 
-### Something went wrong?
+## BlueHammer: пример интересного кейса
 
-It is always possible that something goes wrong. Consult the service log for further details. While SilkService is configured to terminate and clean up ETW collectors or error it is possible that a stale collector remains registered after process termination. To list running collectors you can use the following command.
+[BlueHammer](BlueHammer/) — PoC локальной LPE-уязвимости в Windows Defender. Атака использует TOCTOU-гонку: через цепочку Object Manager symlink + oplock Defender при обновлении сигнатур (работая как SYSTEM) копирует SAM из теневой копии тома в директорию, доступную пользователю.
+
+BlueHammer удобен как исследовательский кейс, потому что затрагивает сразу несколько ETW-слоёв: файловые операции, Object Manager, Cloud Files API, опционально — стек вызовов. Без правильно собранного ETW ни атака, ни её механизм не видны.
+
+### Компиляция и запуск
 
 ```
-logman -ets
+BlueHammer/FunnyApp.sln  →  собрать в Release x64
 ```
 
-If any stale collectors are identified they can be removed by issuing the following commands from an elevated prompt.
+Запускать на тестовой машине с не Administrator-правами. При наличии ожидающего обновления Defender PoC выполняет атаку автоматически.
+
+### Мониторинг
+
+Параллельно с PoC запустить:
+
+```
+SilkETW.exe -c SilkETW\ConfigTemplates\SilkETWConfig_BlueHammer_Win11.xml
+```
+
+Результат — NDJSON с полным трейсом: от загрузки `offreg.dll` и `cldapi.dll` до `FileIo/Create` со стороны `MsMpEng` на пути `\Device\HarddiskVolumeShadowCopyN\Windows\System32\Config\SAM`.
+
+Подробный разбор артефактов: [`docs/bluehammer-funnyapp-talk-ru.md`](docs/bluehammer-funnyapp-talk-ru.md) / [`docs/bluehammer-funnyapp-talk-en.md`](docs/bluehammer-funnyapp-talk-en.md).
+
+---
+
+## Структура репозитория
+
+```
+SilkETW/               ← исходный код коллектора (C#)
+  ConfigTemplates/     ← готовые XML-профили
+BlueHammer/            ← PoC + исходники FunnyApp (C++)
+Import-NdjsonToElastic/← скрипт импорта в Elasticsearch (PowerShell)
+docs/                  ← технический разбор BlueHammer (RU + EN)
+```
+
+---
+
+## Зависимости
+
+| Пакет | Версия | Лицензия |
+| --- | --- | --- |
+| McMaster.Extensions.CommandLineUtils | 4.x | Apache-2.0 |
+| Microsoft.Diagnostics.Tracing.TraceEvent | latest | MIT |
+| Newtonsoft.Json | latest | MIT |
+
+Подробнее: [LICENSE-3RD-PARTY.txt](LICENSE-3RD-PARTY.txt).
+
+---
+---
+
+# SilkETW — Fork with System Provider Support and Elasticsearch Export
+
+This is a rewritten fork of the original [SilkETW](https://github.com/fireeye/SilkETW) (FuzzySecurity / Mandiant). The main addition is support for **System Providers** (ETW via `EnableTraceEx2`), unified NDJSON output, and a ready-made import script for Elasticsearch / Kibana. Everything else — Kernel and ManifestBased (User) — works as before.
+
+---
+
+## ETW Provider Types
+
+### Kernel Provider (`CollectorType: Kernel`)
+
+The classic kernel mechanism: `NT Kernel Logger` session (`MSNT_SystemTrace`). Controlled by numeric flags (`KernelKeywords`). Covers file I/O (`FileIo/Create`, `FileIo/FSControl`, `FileIo/RenamePath`…), process, image, and thread creation. Broad coverage at low cost.
+
+**Important:** `EventId` in this session is not unique per event class — one number can cover several types. When analyzing, correlate on `EventName` + `OpcodeName`, not on `EventId` alone.
+
+### ManifestBased / User Provider (`CollectorType: User`)
+
+Manifest-based ETW: the provider is identified by GUID or name (e.g., `Microsoft-Windows-Kernel-File`). Each provider publishes an XML manifest describing all its events. Structured payload, no `EventId` aliasing, decodes without PDB symbols. Convenient wherever the exact path (`FilePath` field), tags, or event versions matter.
+
+### System Provider (`CollectorType: SystemProvider`)
+
+New in this fork. Uses `EnableTraceEx2` to add providers to an already-running system session (`NT Kernel Logger`). Unlocks events not available through either the classic Kernel path or manifest providers: **Object Manager object lifecycle** (handle open/close, name creation), processes, locks, and I/O filters.
+
+On Windows 11+, the modern path through `EnableTraceEx2` is used; on Windows 8/10 a legacy fallback via `TraceSetInformation` is available. See [`SilkETW/task_for_agent_windows11_system_object_provider_with_legacy_fallback.md`](SilkETW/task_for_agent_windows11_system_object_provider_with_legacy_fallback.md).
+
+---
+
+## Goal: NDJSON Ready for Elastic Import
+
+All collectors write events to a single NDJSON file (one event = one JSON line). The format is suitable for direct Elasticsearch import: every line contains `@timestamp`, `ProcessName`, `ProviderName`, `EventName`, `ThreadID`, `XmlEventData.*`, and other fields that Kibana indexes immediately.
+
+Multiple collectors (Kernel + ManifestBased + SystemProvider) can run simultaneously with a single `<OutputPath>` — they write to one file through a thread-safe writer.
+
+---
+
+## Configuration
+
+Collectors are defined in an XML file. Example — BlueHammer profile for Windows 11:
+
+```xml
+<SilkETWConfig>
+  <OutputPath>./Logs/object_file_symlink_BlueHammer_Win11.ndjson</OutputPath>
+
+  <!-- Kernel: File I/O -->
+  <ETWCollector>
+    <Guid>f9beff90-c9ad-4f39-b4fc-49be905f8d35</Guid>
+    <CollectorType>Kernel</CollectorType>
+    <KernelKeywords>100665088</KernelKeywords>
+    <EventIdFilter>64,69,71,75,79,80,81</EventIdFilter>
+  </ETWCollector>
+
+  <!-- ManifestBased: Microsoft-Windows-Kernel-File -->
+  <ETWCollector>
+    <Guid>abe9f2f4-c9a2-4a03-a9d5-8f1f63e64ac5</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>Microsoft-Windows-Kernel-File</ProviderName>
+    <UserKeywords>4503599644147711</UserKeywords>
+  </ETWCollector>
+
+  <!-- System Provider: Object Manager handle lifecycle -->
+  <ETWCollector>
+    <Guid>a9d2e96b-1c3c-4c2a-b8c7-0e5f3d1a7b22</Guid>
+    <CollectorType>SystemProvider</CollectorType>
+    <SystemProviderGuids>
+      <ProviderGuid>{9B79EE91-B5FD-41C0-A243-4248B4B4CF09}</ProviderGuid>
+    </SystemProviderGuids>
+  </ETWCollector>
+</SilkETWConfig>
+```
+
+Ready-made profiles are in [`SilkETW/ConfigTemplates/`](SilkETW/ConfigTemplates/):
+
+| File | Purpose |
+| --- | --- |
+| `SilkETWConfig_BlueHammer_Win11.xml` | BlueHammer: File I/O + Object Manager, Windows 11 |
+| `SilkETWConfig_BlueHammer_Win11_noflt.xml` | Same, without IO Filter Provider |
+| `SilkETWConfig_BlueHammer.xml` | BlueHammer on older Windows |
+| `SilkETWConfig_ObjectManager.xml` | Object Manager only |
+| `SilkETWConfig_Shadowcopy.xml` | VSS / shadow copy events |
+| `SilkETWConfig_Certificates.xml` | Certificate events |
+| `SilkETWConfig_IIS.xml` | IIS |
+| `SilkETWConfig_Office.xml` | Office |
+
+---
+
+## Running
+
+```
+SilkETW.exe -c SilkETW\ConfigTemplates\SilkETWConfig_BlueHammer_Win11.xml
+```
+
+Requires Administrator privileges. Output is written to the file specified in `<OutputPath>`.
+
+---
+
+## Importing into Elasticsearch
+
+After collection, the ready NDJSON can be sent to a local Elasticsearch with a single command:
 
 ```powershell
-Get-EtwTraceProvider |Where-Object {$.SessionName -like "SilkService*"} |ForEach-Object {Stop-EtwTraceSession -Name $.SessionName}
-Get-EtwTraceProvider |Where-Object {$_.SessionName -like "SilkService*"} |Remove-EtwTraceProvider
+./Import-NdjsonToElastic/Import-NdjsonToElastic.ps1 `
+    -NdjsonPath .\Logs\object_file_symlink_BlueHammer_Win11.ndjson `
+    -IndexName bluehammer `
+    -Recreate
 ```
 
-## Output Format
+The script [`Import-NdjsonToElastic/Import-NdjsonToElastic.ps1`](Import-NdjsonToElastic/Import-NdjsonToElastic.ps1):
+- normalizes encoding to UTF-8;
+- converts NDJSON to Elasticsearch bulk format via `jq`;
+- creates an index with correct mappings (`@timestamp` as `date`, numbers as `long`);
+- uploads data in batches (`-DocsPerBulk`, default 5000);
+- creates or updates the Kibana Data View.
 
-### JSON Output Structure
+Requirements: PowerShell 7+, `jq` in PATH, local Elasticsearch.
 
-The JSON output, prior to serialization, is formatted according to the following C# struct.
+---
 
-```csharp
-public struct EventRecordStruct
-{
-    public Guid ProviderGuid;
-    public List<String> YaraMatch;
-    public string ProviderName;
-    public string EventName;
-    public TraceEventOpcode Opcode;
-    public string OpcodeName;
-    public DateTime TimeStamp;
-    public int ThreadID;
-    public int ProcessID;
-    public string ProcessName;
-    public int PointerSize;
-    public int EventDataLength;
-    public Hashtable XmlEventData;
-}
-```
+## BlueHammer: An Interesting Example Case
 
-Note that, depending on the provider and the event type, you will have variable data in the XmlEventData hash table. Sample JSON output can be seen below for "Microsoft-Windows-Kernel-Process" -> "ThreadStop/Stop".
+[BlueHammer](BlueHammer/) is a PoC for a local LPE vulnerability in Windows Defender. The attack exploits a TOCTOU race: through an Object Manager symlink chain plus an oplock, Defender — while updating signatures as SYSTEM — copies the SAM hive out of a volume shadow copy into a user-accessible directory.
 
-```json
-{
-   "ProviderGuid":"22fb2cd6-0e7b-422b-a0c7-2fad1fd0e716",
-   "YaraMatch":[
+BlueHammer works well as a research case because it touches several ETW layers at once: file I/O, Object Manager, Cloud Files API, and optionally call stacks. Without properly collected ETW, neither the attack nor its mechanism is visible.
 
-   ],
-   "ProviderName":"Microsoft-Windows-Kernel-Process",
-   "EventName":"ThreadStop/Stop",
-   "Opcode":2,
-   "OpcodeName":"Stop",
-   "TimeStamp":"2019-03-03T17:58:14.2862348+00:00",
-   "ThreadID":11996,
-   "ProcessID":8416,
-   "ProcessName":"N/A",
-   "PointerSize":8,
-   "EventDataLength":76,
-   "XmlEventData":{
-      "FormattedMessage":"Thread 11,996 (in Process 8,416) stopped. ",
-      "StartAddr":"0x7fffe299a110",
-      "ThreadID":"11,996",
-      "UserStackLimit":"0x3d632000",
-      "StackLimit":"0xfffff38632d39000",
-      "MSec":"560.5709",
-      "TebBase":"0x91c000",
-      "CycleTime":"4,266,270",
-      "ProcessID":"8,416",
-      "PID":"8416",
-      "StackBase":"0xfffff38632d40000",
-      "SubProcessTag":"0",
-      "TID":"11996",
-      "ProviderName":"Microsoft-Windows-Kernel-Process",
-      "PName":"",
-      "UserStackBase":"0x3d640000",
-      "EventName":"ThreadStop/Stop",
-      "Win32StartAddr":"0x7fffe299a110"
-   }
-}
-```
-
-## Post-Collection
-
-### Filter data in PowerShell
-
-You can import JSON output from SilkETW in PowerShell using the following simple function.
-
-```powershell
-function Get-SilkData {
-	param($Path)
-	$JSONObject = @()
-	Get-Content $Path | ForEach-Object {
-		$JSONObject += $_ | ConvertFrom-Json
-	}
-	$JSONObject
-}
-```
-
-In the example below we will collect process event data from the Kernel provider and use image loads to identify Mimikatz execution. We can collect the required data with the following command.
+### Build
 
 ```
-SilkETW.exe -t kernel -kk ImageLoad -ot file -p C:\Users\b33f\Desktop\mimikatz.json
+BlueHammer/FunnyApp.sln  →  build Release x64
 ```
 
-With data in hand it is easy to sort, grep and filter for the properties we are interested in.
+Run on a test machine with Administrator rights. If a pending Defender update is available, the PoC executes the attack automatically.
 
-![Mimikatz](Images/mimi.png)
+### Monitoring
 
-### Yara
-
-SilkETW includes Yara functionality to filter or tag event data. Again, this has obvious defensive capabilities but it can just as easily be used to augment your ETW research.
-
-In this example we will use the following Yara rule to detect Seatbelt execution in memory through Cobalt Strike's execute-assembly.
+Run alongside the PoC:
 
 ```
-rule Seatbelt_GetTokenInformation
-{
-	strings:
-		$s1 = "ManagedInteropMethodName=GetTokenInformation" ascii wide nocase
-		$s2 = "TOKEN_INFORMATION_CLASS" ascii wide nocase
-		$s3 = /bool\(native int,valuetype \w+\.\w+\/\w+,native int,int32,int32&/
-		$s4 = "locals (int32,int64,int64,int64,int64,int32& pinned,bool,int32)" ascii wide nocase
-	
-	condition:
-		all of ($s*)
-}
+SilkETW.exe -c SilkETW\ConfigTemplates\SilkETWConfig_BlueHammer_Win11.xml
 ```
 
-We can start collecting .Net ETW data with the following command. The "-yo" option here indicates that we should only write Yara matches to disk!
+Result: an NDJSON file with a full trace — from loading `offreg.dll` and `cldapi.dll` all the way to a `FileIo/Create` event from `MsMpEng` on the path `\Device\HarddiskVolumeShadowCopyN\Windows\System32\Config\SAM`.
+
+Detailed artifact analysis: [`docs/bluehammer-funnyapp-talk-en.md`](docs/bluehammer-funnyapp-talk-en.md) / [`docs/bluehammer-funnyapp-talk-ru.md`](docs/bluehammer-funnyapp-talk-ru.md).
+
+---
+
+## Repository Layout
 
 ```
-SilkETW.exe -t user -pn Microsoft-Windows-DotNETRuntime -uk 0x2038 -l verbose -y C:\Users\b33f\Desktop\yara -yo matches -ot file -p C:\Users\b33f\Desktop\yara.json
+SilkETW/               ← collector source code (C#)
+  ConfigTemplates/     ← ready-made XML profiles
+BlueHammer/            ← PoC + FunnyApp source (C++)
+Import-NdjsonToElastic/← Elasticsearch import script (PowerShell)
+docs/                  ← BlueHammer technical write-up (RU + EN)
 ```
 
-We can see at runtime that our Yara rule was hit.
+---
 
-![Seatbelt](Images/seatbelt.png)
+## Dependencies
 
-Note also that we are only capturing a subset of the "Microsoft-Windows-DotNETRuntime" events (0x2038), specifically: JitKeyword, InteropKeyword, LoaderKeyword and NGenKeyword.
+| Package | Version | License |
+| --- | --- | --- |
+| McMaster.Extensions.CommandLineUtils | 4.x | Apache-2.0 |
+| Microsoft.Diagnostics.Tracing.TraceEvent | latest | MIT |
+| Newtonsoft.Json | latest | MIT |
 
-## How to get SilkETW & SilkService?
-
-You can either download the source and compile it in Visual Studio. Please note that you can get the community edition of Visual Studio free of charge. Or you can grab the latest pre-built version from [releases](https://github.com/fireeye/SilkETW/releases).
-
-## Future Work
-
-### Changelog
-
-For details on version specific changes, please refer to the [Changelog](Changelog.txt).
-
-### RoadMap
-
-* Offer users the option to write trace data to disk as *.etl files.
-* ~~Offer users the option to write trace data to the Windows event log.~~ **(v0.5+)**
-* ~~Offer users pre-compiled releases.~~ **(v0.6+)**
-* ~~Create a separate instance (SilkService) which can be deployed as a service with a configuration file.~~ **(v0.7+)**
-* Suggestions welcome!
+See [LICENSE-3RD-PARTY.txt](LICENSE-3RD-PARTY.txt) for details.
