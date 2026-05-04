@@ -117,8 +117,8 @@
     <CollectorType>User</CollectorType>
     <ProviderName>e02a841c-75a3-4fa7-afc8-ae09cf9b7f23</ProviderName>
     <UserTraceEventLevel>Informational</UserTraceEventLevel>
-    <UserKeywords>0x18F0</UserKeywords>
     <!--
+    <UserKeywords>0x18F0</UserKeywords>    
     <EventIdFilter>23,27,28,29</EventIdFilter>
     -->
   </ETWCollector>
