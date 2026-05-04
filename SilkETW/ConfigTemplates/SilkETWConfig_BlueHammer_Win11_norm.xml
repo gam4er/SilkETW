@@ -93,6 +93,37 @@
     -->
   </ETWCollector>
 
+
+  <!-- 
+    Custom provider for symlink tracking events from the kernel (manifest-based User collector).
+    GUID: {e02a841c-75a3-4fa7-afc8-ae09cf9b7f23}
+
+    This is an optional extra collector for symlink tracking, which can be used together with
+    the Kernel and Microsoft-Windows-Kernel-File collectors above for richer symlink-related
+    events. It is not strictly necessary if the Microsoft-Windows-Kernel-File provider is enabled,
+    since that provider's FilePath field in the RenamePath and SetLinkPath templates already gives
+    the target path for rename/hardlink/FSCTL operations.
+
+    The custom provider gives additional events with the source path in a FilePath field, which
+    can be useful for correlating with file delete events from the Kernel provider that only have
+    the target path. The custom provider's events are triggered by a WPP tracepoint in the kernel
+    that fires on relevant symlink-related operations, so it may have different coverage and overhead
+    characteristics compared to the Microsoft-Windows-Kernel-File provider.
+  -->
+
+
+  <ETWCollector>
+    <Guid>84c96ec7-7f3c-4307-9da0-9e3b4610c77a</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>e02a841c-75a3-4fa7-afc8-ae09cf9b7f23</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0x18F0</UserKeywords>
+    <!--
+    <EventIdFilter>23,27,28,29</EventIdFilter>
+    -->
+  </ETWCollector>
+
+
   <!--
     Object Manager collector (System Object Provider).
 
