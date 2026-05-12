@@ -12,3 +12,4 @@
 *.ndjson
 
 .fake
+*.json

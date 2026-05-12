@@ -1,36 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  See SilkETWConfig_Shadowcopy.md for provider descriptions (EN/RU).
+-->
 <SilkETWConfig>
 
-  <!--
-    Shadow-copy monitoring profile for your SilkETW fork.
+<OutputPath>./Logs/shadowcopy_monitor.ndjson</OutputPath>
 
-    Why this shape:
-    1) One kernel collector for file I/O data-plane events.
-       This is the part that can surface actual file access/read activity.
-    2) User collectors for VSS/VolSnap/control-plane providers by GUID.
-
-    Important:
-    - In your fork, <Guid> is the collector instance GUID.
-    - The ETW provider itself goes into <ProviderName>.
-    - ProviderName may be a GUID string.
-  -->
-
-  <OutputPath>./Logs/shadowcopy_monitor.ndjson</OutputPath>
-
-  <!-- Kernel File I/O collector:
-       100664832 = FileIO (33554432) + FileIOInit (67108864) + DiskFileIO (512) + DiskIOInit (1024)
-       Keep this collector if you want to detect actual reads via \Device\HarddiskVolumeShadowCopy* paths.
-  -->
-
-  <ETWCollector>
+<ETWCollector>
     <Guid>c6f6f37a-2b9b-4d4a-b3d5-2f9a21d5b6d3</Guid>
     <CollectorType>Kernel</CollectorType>
     <KernelKeywords>100664832</KernelKeywords>
   </ETWCollector>
 
-
-  <!-- User providers supplied by you -->
-  <ETWCollector>
+<ETWCollector>
     <Guid>6d4df908-4fd8-48db-8ff3-0db02d9cb8ee</Guid>
     <CollectorType>User</CollectorType>
     <ProviderName>67fe2216-727a-40cb-94b2-c02211edb34a</ProviderName>
@@ -62,41 +44,22 @@
     <UserKeywords>0xffffffffffffffff</UserKeywords>
   </ETWCollector>
 
-  <!--
-    Object Manager handle tracing (SystemProvider).
-    Windows 11+          => modern path: System Object Provider via EnableTraceEx2.
-    Windows 8 / 10 / Server 2012+ => legacy path: TraceSetInformation with PERF_OB_HANDLE.
-    Ref: https://learn.microsoft.com/en-us/windows/win32/etw/system-providers
-
-    NOTE: Do NOT use <ProviderName> for SystemProvider collectors — that element
-    is only for User (manifest-based) collectors.  System Provider GUIDs must be
-    listed inside <SystemProviderGuids>.
-
-    OpcodeFilter values (handle lifecycle):
-      32, 33 = CreateHandle, CloseHandle
-      34     = DuplicateHandle
-      38, 39 = HandleDCStart, HandleDCEnd
-  -->
-  <ETWCollector>
+<ETWCollector>
     <Guid>a1b2c3d4-e5f6-7890-abcd-ef1234567890</Guid>
     <CollectorType>SystemProvider</CollectorType>
     <SystemProviderGuids>
-      <!-- System Object Provider: SYSTEM_OBJECT_KW_HANDLE (0x1). -->
+      
       <Provider>
         <Guid>febd7460-3d1d-47eb-af49-c9eeb1e146f2</Guid>
         <UserKeywords>0x1</UserKeywords>
         <OpcodeFilter>32,33,34,38,39</OpcodeFilter>
       </Provider>
     </SystemProviderGuids>
-    <!--
-      0x80000040 = PERF_OB_HANDLE — legacy Win8/10 path only; ignored on Win11+.
-      Ref: https://learn.microsoft.com/en-us/windows/win32/etw/obtrace
-    -->
+    
     <EnableFlags>0x80000040</EnableFlags>
     <InformationClass>4</InformationClass>
     <UserTraceEventLevel>Verbose</UserTraceEventLevel>
     <UserKeywords>0xffffffffffffffff</UserKeywords>
   </ETWCollector>
-
 
 </SilkETWConfig>

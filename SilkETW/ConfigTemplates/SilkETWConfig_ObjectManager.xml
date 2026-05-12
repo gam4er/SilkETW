@@ -1,81 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  See SilkETWConfig_ObjectManager.md for provider descriptions (EN/RU).
+-->
 <SilkETWConfig>
 
-  <!--
-    Object Manager tracing profile.
+<OutputPath>./Logs/object_manager.ndjson</OutputPath>
 
-    Captures kernel handle create/close/duplicate events using the SystemProvider
-    collector type which automatically selects the appropriate ETW path:
-
-      Windows 11+ (build >= 22000):
-        Modern path  system-logger-mode session + EnableTraceEx2 for
-        System Object Provider {febd7460-3d1d-47eb-af49-c9eeb1e146f2}.
-        Ref: https://learn.microsoft.com/en-us/windows/win32/etw/system-providers
-
-      Windows 8 / 10 / Server 2012+:
-        Legacy fallback  system-logger-mode session + TraceSetInformation
-        with PERF_OB_HANDLE (0x80000040) via TraceSystemTraceEnableFlagsInfo.
-        Ref: https://learn.microsoft.com/en-us/windows/win32/etw/obtrace
-
-      Below Windows 8:
-        Not supported  collector will fail-closed with an error message.
-
-    EventIdFilter values (ObTrace event IDs):
-      32  = CreateHandle
-      33  = CloseHandle
-      34  = DuplicateHandle
-      36  = TypeDCStart   (type run-down start)
-      37  = TypeDCEnd     (type run-down end)
-      38  = HandleDCStart (handle run-down start)
-      39  = HandleDCEnd   (handle run-down end)
-
-    Remove <EventIdFilter> to capture all Object Manager events.
-    Combine with the Kernel collector below to correlate file I/O with handle lifecycle.
-  -->
-
-  <OutputPath>./Logs/object_manager.ndjson</OutputPath>
-
-  <!-- Kernel file I/O collector (optional  remove if not needed).
-       100664832 = FileIO (33554432) + FileIOInit (67108864) + DiskFileIO (512) + DiskIOInit (1024).
-  -->
-  <ETWCollector>
+<ETWCollector>
     <Guid>c6f6f37a-2b9b-4d4a-b3d5-2f9a21d5b6d3</Guid>
     <CollectorType>Kernel</CollectorType>
     <KernelKeywords>100664832</KernelKeywords>
     <EventIdFilter>64</EventIdFilter>
   </ETWCollector>
 
-  <!--
-    Object Manager collector.
-    CollectorType = SystemProvider selects modern or legacy path automatically.
-
-    NOTE: Do NOT use <ProviderName> for SystemProvider collectors — that element
-    is only for User (manifest-based) collectors.  System Provider GUIDs must be
-    listed inside <SystemProviderGuids>.
-
-    Win11+  : each <Provider> entry is passed to EnableTraceEx2.
-    Win8/10 : EnableFlags bitmask is used via TraceSetInformation (legacy path).
-    Ref: https://learn.microsoft.com/en-us/windows/win32/etw/system-providers
-  -->
-  <ETWCollector>
+<ETWCollector>
     <Guid>a1b2c3d4-e5f6-7890-abcd-ef1234567890</Guid>
     <CollectorType>SystemProvider</CollectorType>
     <SystemProviderGuids>
-      <!-- System Object Provider: handle create/close/duplicate events.
-           SYSTEM_OBJECT_KW_HANDLE (0x1) — handle lifecycle events only. -->
+      
       <Provider>
         <Guid>febd7460-3d1d-47eb-af49-c9eeb1e146f2</Guid>
         <UserKeywords>0x1</UserKeywords>
         <OpcodeFilter>32,33,34,38,39</OpcodeFilter>
       </Provider>
     </SystemProviderGuids>
-    <!--
-      EnableFlags: legacy Win8/10 path only; ignored on Win11+ (EnableTraceEx2 used).
-      0x80000040 = PERF_OB_HANDLE — Object Manager handle tracing.
-      Ref: https://learn.microsoft.com/en-us/windows/win32/etw/obtrace
-    -->
+    
     <EnableFlags>0x80000040</EnableFlags>
-    <!-- InformationClass 4 = TraceSystemTraceEnableFlagsInfo (default). -->
+    
     <InformationClass>4</InformationClass>
     <UserTraceEventLevel>Verbose</UserTraceEventLevel>
     <UserKeywords>0xffffffffffffffff</UserKeywords>

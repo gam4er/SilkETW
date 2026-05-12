@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  See SilkETWConfig_NTLM_Recommended.md for provider descriptions (EN/RU).
+-->
+<SilkETWConfig>
+
+<OutputPath>./Logs/ntlm_client_recommended.ndjson</OutputPath>
+
+<ETWCollector>
+    <Guid>26900fe0-b997-4e68-ab73-1476e16c3c8e</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>ac43300d-5fcc-4800-8e99-1bd3f85f0320</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>18462640-eb6f-49f9-aa00-19dab188b111</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>c92cf544-91b3-4dc0-8e11-c580339a0bf8</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>8db2e68e-227b-46ac-983c-0fb9a576119e</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>5bbb6c18-aa45-49b1-a15f-085f7ed0aa90</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>f11b3ff6-fbbf-43f2-9ecd-44350c506b60</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>98e6cfcb-ee0a-41e0-a57b-622d4e1b30b1</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>69fab536-2e70-4a64-9d6e-77a3519686d4</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>e5ba83f6-07d0-46b1-8bc7-7e669a1d31dc</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>fd5955b6-a030-4c03-be2b-abf3d356b576</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>cc85922f-db41-11d2-9244-006008269001</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>649c57eb-233d-4d77-9202-4921ab877387</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>199fe037-2b82-40a9-82ac-e1d46c792b99</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>83a5ad00-1ac3-47da-bc6f-206e4fdabd90</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>7d44233d-3055-4b9c-ba64-0d47ca40a232</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>38d1a346-d288-45b3-8988-5e94a906ce11</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>43d1a55c-76d6-4f7e-995c-64c711e5cafe</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+    <EventIdFilter>200,201,203,210,211,601,602,603,604,605,606</EventIdFilter>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>42c28e19-4a43-4cac-adb8-48c371cd0dc5</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>a70ff94f-570b-4979-ba5c-e59c9feab61b</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>b5559505-f60c-49f6-a29d-5f8741130846</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>5402e5ea-1bdd-4390-82be-e108f1e634f5</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>2589543b-e6b7-40ec-9d75-faa6b6916301</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>50b3e73c-9370-461d-bb9f-26f32d68887d</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>0728bb6a-6475-423b-9b11-ed2e51c8000b</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>988c59c5-0a1c-45b6-a555-0c62276e327d</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+    <EventIdFilter>30800,30801,30802,30803,30804,30812,30813,30814,30815,31000,31001,31002,31003,31010,31012,31013,31014,31015,31016,31017,31018,31019,31020</EventIdFilter>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>1c6992cf-64c6-4804-b896-67ee8916f7d2</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>d8975f88-7ddb-4ed0-91bf-3adf48c48e0c</ProviderName>
+    <UserTraceEventLevel>Warning</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>19a9b312-ba2c-49be-8f5e-3f05f20155a6</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>f4aed7c7-a898-4627-b053-44a7caa12fcd</ProviderName>
+    <UserTraceEventLevel>Warning</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>06c63cd5-5dc2-4095-babb-d297cdf39de9</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>1418ef04-b0b4-4623-bf7e-d74ab47bbdaa</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>7af74f71-c4d3-4f4d-a5bc-0052d19f89d9</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>099614a5-5dd7-4788-8bc9-e29f43db28fc</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>3c63d6d7-3f03-443c-88da-fc2428059752</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>a7975c8f-ac13-49f1-87da-5a984a4ab417</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>75eefa06-6955-4b74-8ea0-0640679c351f</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>a0c1853b-5c40-4b15-8766-3cf1c58f985a</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>d62a47be-055c-4db9-99d9-a4e28f5614a5</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>1139c61b-b549-4251-8ed3-27250a1edec8</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>d3deb9df-e949-409c-a9d1-47243500f2b5</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>28aa95bb-d444-4719-a36f-40462168127e</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>05a4cd8e-5b0f-45c5-85a8-86987c7150a4</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>c76baa63-ae81-421c-b425-340b4b24157f</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>da1f6353-9cbe-434d-9dbe-e2f7d8e10456</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>5d896912-022d-40aa-a3a8-4fa5515c76d7</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>5fbf369d-a24c-4a9c-a16e-eb34e1fe205c</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>747ef6fd-e535-4d16-b510-42c90f6873a1</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>b6d38fce-0bdd-4991-968a-5daa8b635b5b</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>2f07e2ee-15db-40f1-90ef-9d7ba282188a</ProviderName>
+    <UserTraceEventLevel>Warning</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>b7a5d297-e439-4f42-ac02-48d998f61ad5</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>e53c6823-7bb8-44bb-90dc-3f86090d48a6</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>33dc1673-3845-4cf6-ad00-a7860f04cfdb</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>22fb2cd6-0e7b-422b-a0c7-2fad1fd0e716</ProviderName>
+    <UserTraceEventLevel>Informational</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+<ETWCollector>
+    <Guid>45daf3e6-02f9-44f7-9f90-c3a56d7c7a44</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>7dd42a49-5329-4832-8dfd-43d979153a88</ProviderName>
+    <UserTraceEventLevel>Warning</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+</SilkETWConfig>

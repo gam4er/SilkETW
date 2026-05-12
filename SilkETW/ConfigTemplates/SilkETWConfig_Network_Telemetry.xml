@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  See SilkETWConfig_Network_Telemetry.md for provider descriptions (EN/RU).
+-->
+<SilkETWConfig>
+  <OutputPath>./Logs/network_telemetry.ndjson</OutputPath>
+
+  <!-- GROUP A: User context & privacy -->
+  <ETWCollector>
+    <Guid>1a1b3c2d-4e5f-4a01-9b10-0a0b0c0d0e01</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>0075e1ab-e1d1-5d1f-35f5-da36fb4f41b1</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <ETWCollector>
+    <Guid>2a2b3c2d-4e5f-4a02-9b20-0a0b0c0d0e02</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>15f4cd44-ca53-5422-db17-4e76821b5a69</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- GROUP B: Name resolution -->
+  <ETWCollector>
+    <Guid>3a3b3c2d-4e5f-4a03-9b30-0a0b0c0d0e03</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>1c95126e-7eea-49a9-a3fe-a378b03ddb4d</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <ETWCollector>
+    <Guid>4a4b3c2d-4e5f-4a04-9b40-0a0b0c0d0e04</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>55404e71-4db9-4deb-a5f5-8f86e46dde56</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- GROUP C: Transport -->
+  <ETWCollector>
+    <Guid>5a5b3c2d-4e5f-4a05-9b50-0a0b0c0d0e05</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>ff15e657-4f26-570e-88ab-0796b258d11c</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <ETWCollector>
+    <Guid>6a6b3c2d-4e5f-4a06-9b60-0a0b0c0d0e06</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>bde46aea-2357-51fe-7367-d5296f530bd1</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <ETWCollector>
+    <Guid>7a7b3c2d-4e5f-4a07-9b70-0a0b0c0d0e07</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>cba5f63c-e2cf-4b36-8305-bde1311924fc</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- GROUP D: HTTP / WinINet / PCA shims -->
+  <ETWCollector>
+    <Guid>8a8b3c2d-4e5f-4a08-9b80-0a0b0c0d0e08</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>d071ce03-0d7b-5b27-e817-b9c12961934e</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <ETWCollector>
+    <Guid>9a9b3c2d-4e5f-4a09-9b90-0a0b0c0d0e09</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>4860ea43-3f05-5fb8-20ce-7ba346a44747</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- GROUP E: Crypto / TLS -->
+  <ETWCollector>
+    <Guid>aaab3c2d-4e5f-4a0a-9ba0-0a0b0c0d0e10</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>5bbca4a8-b209-48dc-a8c7-b23d3e5216fb</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <ETWCollector>
+    <Guid>bbab3c2d-4e5f-4a0b-9bb0-0a0b0c0d0e11</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>e3e0e2f0-c9c5-11e0-8ab9-9ebc4824019b</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <ETWCollector>
+    <Guid>ccab3c2d-4e5f-4a0c-9bc0-0a0b0c0d0e12</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>e8ed09dc-100c-45e2-9fc8-b53399ec1f70</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- GROUP F: Wireless / VPN -->
+  <ETWCollector>
+    <Guid>ddab3c2d-4e5f-4a0d-9bd0-0a0b0c0d0e13</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>9580d7dd-0379-4658-9870-d5be7d52d6de</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <ETWCollector>
+    <Guid>eeab3c2d-4e5f-4a0e-9be0-0a0b0c0d0e14</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>daa6a96b-f3e7-4d4d-a0d6-31a350e6a445</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <ETWCollector>
+    <Guid>ffab3c2d-4e5f-4a0f-9bf0-0a0b0c0d0e15</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>3c088e51-65be-40d1-9b90-62bfec076737</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- GROUP G: Lower stack & infra -->
+  <ETWCollector>
+    <Guid>10ab3c2d-4e5f-4a10-9c00-0a0b0c0d0e16</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>cdead503-17f5-4a3e-b7ae-df8cc2902eb9</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <ETWCollector>
+    <Guid>11ab3c2d-4e5f-4a11-9c10-0a0b0c0d0e17</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>a111f1c2-5923-47c0-9a68-d0bafb577901</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <ETWCollector>
+    <Guid>12ab3c2d-4e5f-4a12-9c20-0a0b0c0d0e18</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>d48ce617-33a2-4bc3-a5c7-11aa4f29619e</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+  <!-- GROUP H: Application runtime -->
+  <ETWCollector>
+    <Guid>13ab3c2d-4e5f-4a13-9c30-0a0b0c0d0e19</Guid>
+    <CollectorType>User</CollectorType>
+    <ProviderName>e13c0d23-ccbc-4e12-931b-d9cc2eee27e4</ProviderName>
+    <UserTraceEventLevel>Verbose</UserTraceEventLevel>
+    <UserKeywords>0xffffffffffffffff</UserKeywords>
+  </ETWCollector>
+
+</SilkETWConfig>
